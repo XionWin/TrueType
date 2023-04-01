@@ -10,27 +10,30 @@ using Extension;
 namespace TrueType
 {
 
-    public class ByteStream
+    public class TTFRaw
     {
         private byte[] _raw;
         public byte[] Raw => this._raw;
         public ReadOnlySpan<byte> Span => this._raw;
 
-        public ByteStream(byte[] raw)
+        public TTFRaw(byte[] raw)
         {
             this._raw = raw;
+            this.Tables = this.LoadTables(0);
         }
+
+        public Dictionary<string, uint> Tables { get; private set; }
 
         public T GetNumber<T>(int position) where T : struct, INumber<T> => this.Span.GetNumber<T>(position);
     }
 
-    public class TrueTypeFontInfo
+    public class TTF
     {
         public object? UserData { get; set; }
         /// <summary>
         /// Pointer to .ttf file
         /// </summary>
-        public ByteStream ByteStream { get; init; }
+        public TTFRaw Raw { get; init; }
 
         /// <summary>
         /// Offset of start of font
@@ -52,10 +55,9 @@ namespace TrueType
         public int Hhea { get; set; }
         public int Kern { get; set; }
 
-        public TrueTypeFontInfo(byte[] raw)
+        public TTF(byte[] raw)
         {
-            this.ByteStream = new ByteStream(raw);
-            this.Load();
+            this.Raw = new TTFRaw(raw);
         }
 
     }
@@ -70,25 +72,21 @@ namespace TrueType
             return MemoryMarshal.Read<T>(span);
         }
 
-        internal static void Load(this TrueTypeFontInfo fontInfo)
-        {
-            fontInfo.ByteStream.Span.FindTable(0, "cmap");
-        }
 
-        internal static int FindTable(this ReadOnlySpan<byte> data, int start, string tag)
+        internal static Dictionary<string, uint> LoadTables(this TTFRaw raw, int start)
         {
-            var tableCount = data.GetNumber<ushort>(start + TTFC.TABLE_COUNT_OFFSET);
+            var span = raw.Span;
+            var tableCount = span.GetNumber<ushort>(start + TTFC.TABLE_COUNT_OFFSET);
             var tableDir = start + TTFC.TABLE_DIR_OFFSET;
 
+            var result = new Dictionary<string, uint>();
             for (int i = 0; i < tableCount; i++)
             {
                 var location = tableDir + TTFC.TABLE_DIR_STEP_LEN * i;
-
-                var nameData = data.Slice(location, 4);
-                string name = Encoding.Default.GetString(nameData);
-                System.Console.WriteLine(name);
+                var nameData = span.Slice(location, 4);
+                result.Add(Encoding.Default.GetString(nameData), span.GetNumber<uint>(location + 8));
             }
-            return default;
+            return result;
         }
 
     }
