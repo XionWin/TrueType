@@ -11,4 +11,10 @@
     <ProjectReference Include="..\TrueType\TrueType.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Fonts\DroidSerif-Regular.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
