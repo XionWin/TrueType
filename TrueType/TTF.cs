@@ -16,10 +16,17 @@ namespace TrueType
         public byte[] Raw => this._raw;
         public ReadOnlySpan<byte> Span => this._raw;
 
+        /// <summary>
+        /// Offset of start of font
+        /// </summary>
+        public int Offset { get; set; }
+
         public TTFRaw(byte[] raw)
         {
             this._raw = raw;
-            this.Tables = this.LoadTables(0);
+            this.Tables = this.LoadTables(Offset);
+            var glyphs = this.LoadTableValue<ushort>(Offset, "maxp", TTFC.TABLE_MAXP_GLYPHS_OFFSET);
+            var cmapTables = this.LoadTableValue<ushort>(Offset, "cmap", TTFC.TABLE_CMAP_TABLES_OFFSET);
         }
 
         public Dictionary<string, uint> Tables { get; private set; }
@@ -64,14 +71,14 @@ namespace TrueType
 
     internal static class TrueTypeFontInfoExtension
     {
-        public static T GetNumber<T>(this ReadOnlySpan<byte> data, int position)
+        internal static T GetNumber<T>(this ReadOnlySpan<byte> data, int position)
             where T : struct, INumber<T>
         {
-            var span = new Span<byte>(data.Slice(position, Marshal.SizeOf<T>()).ToArray());
+            
+            var span = data.Slice(position, Marshal.SizeOf<T>()).ToArray().AsSpan();
             span.Reverse();
             return MemoryMarshal.Read<T>(span);
         }
-
 
         internal static Dictionary<string, uint> LoadTables(this TTFRaw raw, int start)
         {
@@ -83,10 +90,19 @@ namespace TrueType
             for (int i = 0; i < tableCount; i++)
             {
                 var location = tableDir + TTFC.TABLE_DIR_STEP_LEN * i;
-                var nameData = span.Slice(location, 4);
-                result.Add(Encoding.Default.GetString(nameData), span.GetNumber<uint>(location + 8));
+                var nameData = span.Slice(location, TTFC.TABLE_DIR_NAME_LEN);
+                result.Add(Encoding.Default.GetString(nameData), span.GetNumber<uint>(location + TTFC.TABLE_DIR_DATA_OFFSET));
             }
             return result;
+        }
+
+        internal static T LoadTableValue<T>(this TTFRaw raw, int start, string tableName, int propOffset)
+            where T : struct, INumber<T>
+        {
+            var span = raw.Span;
+            var tablePos = raw.Tables[tableName];
+            var propValue = span.GetNumber<T>((int)tablePos + propOffset);
+            return propValue;
         }
 
     }
