@@ -148,9 +148,11 @@ namespace TrueType
             var h = HashInt(code) & (FONS_HASH_LUT_SIZE - 1);
 
             var scale = raw.GetPixelHeightScale(size);
-            var index = raw.GetGlyphIndex(code);
+            "abcdefg".ToArray().Select(x => (byte)x).ToList().ForEach(x =>
+            {
+                var index = raw.GetGlyphIndex(x);
+            });
         }
-
 
         private static int GetGlyphIndex(this TTFRaw raw, byte code)
         {
@@ -161,6 +163,11 @@ namespace TrueType
                 if (code < bytes - 6)
                     return raw.GetNumber<byte>(raw.IndexMap + 6 + code);
                 return 0;
+            }
+            else if (format == 2)
+            {
+                //STBTT_assert(0); // @TODO: high-byte mapping for japanese/chinese/korean
+                throw new NotImplementedException();
             }
             else if (format == 4)
             { // standard mapping for windows fonts: binary search collection of ranges
@@ -209,6 +216,42 @@ namespace TrueType
                     return (ushort)(code + raw.GetNumber<short>(raw.IndexMap + 14 + segcount * 4 + 2 + 2 * item));
 
                 return raw.GetNumber<ushort>(offset + (code - start) * 2 + raw.IndexMap + 14 + segcount * 6 + 2 + 2 * item);
+            }
+            else if (format == 6)
+            {
+                int first = raw.GetNumber<ushort>(raw.IndexMap + 6);
+                int count = raw.GetNumber<ushort>(raw.IndexMap + 8);
+                if ((int)code >= first && (int)code < first + count)
+                    return raw.GetNumber<ushort>(raw.IndexMap + 10 + (code - first) * 2);
+                else
+                    throw new Exception("Not found");
+            }
+            else if (format == 12 || format == 13)
+            {
+                uint ngroups = raw.GetNumber<uint>(raw.IndexMap + 12);
+                int low, high;
+                low = 0;
+                high = (int)ngroups;
+                // Binary search the right group.
+                while (low < high)
+                {
+                    int mid = low + ((high - low) >> 1); // rounds down, so low <= mid < high
+                    uint start_char = raw.GetNumber<uint>(raw.IndexMap + 16 + mid * 12);
+                    uint end_char = raw.GetNumber<uint>(raw.IndexMap + 16 + mid * 12 + 4);
+                    if ((uint)code < start_char)
+                        high = mid;
+                    else if ((uint)code > end_char)
+                        low = mid + 1;
+                    else
+                    {
+                        uint start_glyph = raw.GetNumber<uint>(raw.IndexMap + 16 + mid * 12 + 8);
+                        if (format == 12)
+                            return (int)(start_glyph + code - start_char);
+                        else // format == 13
+                            return (int)start_glyph;
+                    }
+                }
+                throw new Exception("Not found");
             }
             return default;
         }
