@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Extension;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TrueType
 {
@@ -34,6 +35,8 @@ namespace TrueType
         /// Offset of start of font
         /// </summary>
         public int Offset { get; set; }
+        public int IndexMap { get; set; }
+        public int IndexLocFormat { get; set; }
 
         public Dictionary<string, uint> _rawTables;
         public TTFRaw(string name, byte[] raw)
@@ -52,11 +55,13 @@ namespace TrueType
                 Loca = (int)this._rawTables["loca"],
                 Name = (int)this._rawTables["name"],
             };
+            var (indexMap, indexLocFormat) = this.LoadCMap();
+            this.IndexMap = indexMap;
+            this.IndexLocFormat = indexLocFormat;
 
             //var glyphs = this.LoadTableValue<ushort>("maxp", TTFC.TABLE_MAXP_GLYPHS_OFFSET);
             //var cmapTables = this.LoadTableValue<ushort>("cmap", TTFC.TABLE_CMAP_TABLES_OFFSET);
             var lineGap = 0;
-            var cmapValues = this.LoadCMap();
             var vMetrics = this.GetFontVMetrics();
             var fontHeight = vMetrics.ascent - vMetrics.descent;
             var fontascender = (float)vMetrics.ascent / fontHeight;
@@ -143,6 +148,69 @@ namespace TrueType
             var h = HashInt(code) & (FONS_HASH_LUT_SIZE - 1);
 
             var scale = raw.GetPixelHeightScale(size);
+            var index = raw.GetGlyphIndex(code);
+        }
+
+
+        private static int GetGlyphIndex(this TTFRaw raw, byte code)
+        {
+            var format = raw.GetNumber<ushort>(raw.IndexMap);
+            if (format == 0)
+            { // apple byte encoding
+                int bytes = raw.GetNumber<ushort>(raw.IndexMap + 2);
+                if (code < bytes - 6)
+                    return raw.GetNumber<byte>(raw.IndexMap + 6 + code);
+                return 0;
+            }
+            else if (format == 4)
+            { // standard mapping for windows fonts: binary search collection of ranges
+                ushort segcount = (ushort)(raw.GetNumber<ushort>(raw.IndexMap + 6) >> 1);
+                ushort searchRange = (ushort)(raw.GetNumber<ushort>(raw.IndexMap + 8) >> 1);
+                ushort entrySelector = raw.GetNumber<ushort>(raw.IndexMap + 10);
+                ushort rangeShift = (ushort)(raw.GetNumber<ushort>(raw.IndexMap + 12) >> 1);
+                ushort item, offset, start, end;
+
+                // do a binary search of the segments
+                int endCount = raw.IndexMap + 14;
+                int search = endCount;
+
+
+                // they lie from endCount .. endCount + segCount
+                // but searchRange is the nearest power of two, so...
+                if (code >= raw.GetNumber<ushort>(search + rangeShift * 2))
+                    search += (rangeShift * 2);
+
+                // now decrement to bias correctly to find smallest
+                search -= 2;
+                while (entrySelector != 0)
+                {
+                    //ushort start, end;
+                    searchRange >>= 1;
+                    start = raw.GetNumber<ushort>(search + 2 + segcount * 2 + 2);
+                    end = raw.GetNumber<ushort>(search + 2);
+                    start = raw.GetNumber<ushort>(search + searchRange * 2 + segcount * 2 + 2);
+                    end = raw.GetNumber<ushort>(search + searchRange * 2);
+                    if (code > end)
+                        search += searchRange * 2;
+                    --entrySelector;
+                }
+                search += 2;
+
+                item = (ushort)((search - endCount) >> 1);
+
+                //STBTT_assert(unicode_codepoint <= ttUSHORT(data + endCount + 2*item));
+                start = raw.GetNumber<ushort>(raw.IndexMap + 14 + segcount * 2 + 2 + 2 * item);
+                end = raw.GetNumber<ushort>(raw.IndexMap + 14 + 2 + 2 * item);
+                if (code < start)
+                    return 0;
+
+                offset = raw.GetNumber<ushort>(raw.IndexMap + 14 + segcount * 6 + 2 + 2 * item);
+                if (offset == 0)
+                    return (ushort)(code + raw.GetNumber<short>(raw.IndexMap + 14 + segcount * 4 + 2 + 2 * item));
+
+                return raw.GetNumber<ushort>(offset + (code - start) * 2 + raw.IndexMap + 14 + segcount * 6 + 2 + 2 * item);
+            }
+            return default;
         }
 
         private static float GetPixelHeightScale(this TTFRaw raw, float height)
