@@ -8,10 +8,10 @@ namespace App
         {
             Console.WriteLine("Hello, World!");
 
-            var font = new Font(@"Fonts/DroidSerif-Regular.ttf");
+            var font = new Font("sans", @"Fonts/DroidSerif-Regular.ttf");
 
-            Console.WriteLine($"TTF Tables Count: {font.TTF.Raw.Tables.Count()}");
-            font.TTF.Raw.Tables.ToList().ForEach(x => Console.WriteLine($"{x.Key}: {x.Value}"));
+            Console.WriteLine($"TTF Tables Count: {font.TTF._rawTables.Count()}");
+            font.TTF._rawTables.ToList().ForEach(x => Console.WriteLine($"{x.Key}: {x.Value}"));
         }
     }
 }

@@ -5,12 +5,15 @@ namespace TrueType
     public class Font
     {
 
-        public Font(string path)
+        public Font(string name, string path)
         {
-            this.TTF = new TTF(File.ReadAllBytes(path));
+            if (File.Exists(path))
+                this.TTF = new TTFRaw(name, File.ReadAllBytes(path));
+            else
+                throw new Exception($"Font {path} not found");
         }
 
-        public TTF TTF { get; private set; }
+        public TTFRaw TTF { get; private set; }
 
     }
 }
