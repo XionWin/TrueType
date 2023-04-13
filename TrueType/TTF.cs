@@ -38,6 +38,8 @@ namespace TrueType
         public int IndexMap { get; set; }
         public int IndexLocFormat { get; set; }
 
+        public int GlyphCount { get; set; }
+
         public Dictionary<string, uint> _rawTables;
         public TTFRaw(string name, byte[] raw)
         {
@@ -58,8 +60,8 @@ namespace TrueType
             var (indexMap, indexLocFormat) = this.LoadCMap();
             this.IndexMap = indexMap;
             this.IndexLocFormat = indexLocFormat;
+            this.GlyphCount = this.LoadTableValue<ushort>("maxp", TTFC.TABLE_MAXP_GLYPHS_OFFSET);
 
-            //var glyphs = this.LoadTableValue<ushort>("maxp", TTFC.TABLE_MAXP_GLYPHS_OFFSET);
             //var cmapTables = this.LoadTableValue<ushort>("cmap", TTFC.TABLE_CMAP_TABLES_OFFSET);
             var lineGap = 0;
             var vMetrics = this.GetFontVMetrics();
@@ -148,10 +150,74 @@ namespace TrueType
             var h = HashInt(code) & (FONS_HASH_LUT_SIZE - 1);
 
             var scale = raw.GetPixelHeightScale(size);
-            "abcdefg".ToArray().Select(x => (byte)x).ToList().ForEach(x =>
+            "T".ToArray().Select(x => (byte)x).ToList().ForEach(x =>
             {
                 var index = raw.GetGlyphIndex(x);
+                raw.BuildGlyphBitmap(index, size, scale);
             });
+        }
+
+        private static void BuildGlyphBitmap(this TTFRaw raw, int index, int size, float scale)
+        {
+            var (advanceWidth, leftSideBearing) = raw.GetGlyphHMetrics(index);
+            var(x0, y0, x1, y1) = raw.GetGlyphBitmapBox(index, scale, scale, 0, 0);
+        }
+
+        private static (int x0, int y0, int x1, int y1) GetGlyphBitmapBox(this TTFRaw raw, int index, float scaleX, float scaleY, float shiftX, float shiftY)
+        {
+            var offset = raw.GetGlyphOffset(index);
+            if (offset == 0)
+                throw new Exception("Not found");
+
+            var x0 = (int)raw.GetNumber<short>(offset + 2);
+            var y0 = (int)raw.GetNumber<short>(offset + 4);
+            var x1 = (int)raw.GetNumber<short>(offset + 6);
+            var y1 = (int)raw.GetNumber<short>(offset + 8);
+
+
+            var ix0 = (int)Math.Floor(x0 * scaleX + shiftX);
+            var iy0 = (int)-Math.Ceiling(y1 * scaleY + shiftY);
+            var ix1 = (int)Math.Ceiling(x1 * scaleX + shiftX);
+            var iy1 = (int)-Math.Floor(y0 * scaleY + shiftY);
+            return (ix0, iy0, ix1, iy1);
+        }
+
+        private static int GetGlyphOffset(this TTFRaw raw, int index)
+        {
+            if (index >= raw.GlyphCount)
+                throw new Exception("Glyph index out of range");
+            if (raw.IndexLocFormat >= 2)
+                throw new Exception("Unknown glyph map format");
+
+            int g1, g2;
+            if (raw.IndexLocFormat == 0)
+            {
+                g1 = raw.Table.Glyf + raw.GetNumber<ushort>(raw.Table.Loca + index * 2) * 2;
+                g2 = raw.Table.Glyf + raw.GetNumber<ushort>(raw.Table.Loca + index * 2 + 2) * 2;
+            }
+            else
+            {
+                g1 = (int)(raw.Table.Glyf + raw.GetNumber<uint>(raw.Table.Loca + index * 4));
+                g2 = (int)(raw.Table.Glyf + raw.GetNumber<uint>(raw.Table.Loca + index * 4 + 4));
+            }
+            return g1 == g2 ? -1 : g1; // if length is 0, return -1
+        }
+
+        private static (short advanceWidth, short leftSideBearing) GetGlyphHMetrics(this TTFRaw raw, int index)
+        {
+            var numOfLongHorMetrics = raw.GetNumber<ushort>(raw.Table.Hhea + 34);
+            if (index < numOfLongHorMetrics)
+            {
+                var advanceWidth = raw.GetNumber<short>(raw.Table.Hmtx + 4 * index);
+                var leftSideBearing = raw.GetNumber<short>(raw.Table.Hmtx + 4 * index + 2);
+                return (advanceWidth, leftSideBearing);
+            }
+            else
+            {
+                var advanceWidth = raw.GetNumber<short>(raw.Table.Hmtx + 4 * (numOfLongHorMetrics - 1));
+                var leftSideBearing = raw.GetNumber<short>(raw.Table.Hmtx + 4 * numOfLongHorMetrics + 2 * (index - numOfLongHorMetrics));
+                return (advanceWidth, leftSideBearing);
+            }
         }
 
         private static int GetGlyphIndex(this TTFRaw raw, byte code)
