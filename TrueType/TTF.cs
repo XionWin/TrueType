@@ -10,7 +10,6 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TrueType
 {
-
     public class TTFRawTable
     {
         public int Cmap { get; set; }
@@ -149,18 +148,94 @@ namespace TrueType
             // Find code point and size.
             var h = HashInt(code) & (FONS_HASH_LUT_SIZE - 1);
 
+            if (size < 2)
+                throw new Exception("Unsupported size");
+            if (blur > 20)
+                blur = 20;
+            var pad = blur + 2;
+
             var scale = raw.GetPixelHeightScale(size);
             "T".ToArray().Select(x => (byte)x).ToList().ForEach(x =>
             {
+
                 var index = raw.GetGlyphIndex(x);
-                raw.BuildGlyphBitmap(index, size, scale);
+                var(advanceWidth, leftSideBearing, x0, y0, x1, y1) = raw.BuildGlyphBitmap(index, size, scale);
+
+                var glyphWidth = x1 - x0 + pad * 2;
+                var glyphHeight = y1 - y0 + pad * 2;
+
+                AtlasAddRect(Atlas.Instance, raw, glyphWidth, glyphHeight);
+
             });
         }
 
-        private static void BuildGlyphBitmap(this TTFRaw raw, int index, int size, float scale)
+        private static void AtlasAddRect(this Atlas atlas, TTFRaw raw, int gw, int gh)
+        {
+            atlas.FitAtlas(gw, gh);
+        }
+
+        //private static (int x, int y) atlasAddRectBestPos(this TTFAtlas atlas, TTFRaw raw, int gw, int gh)
+        //{
+        //    int besth = atlas.Height, bestw = atlas.Width, besti = -1;
+        //    int bestx = -1, besty = -1, i;
+
+        //    // Bottom left fit heuristic.
+        //    for (i = 0; i < atlas.nnodes; i++)
+        //    {
+        //        int y = GetAtlasRectFits(atlas, i, rw, rh);
+        //        if (y != -1)
+        //        {
+        //            short nw = atlas.nodes[i].width;
+        //            if (y + rh < besth || (y + rh == besth && nw < bestw))
+        //            {
+        //                besti = i;
+        //                bestw = atlas.nodes[i].width;
+        //                besth = y + rh;
+        //                bestx = atlas.nodes[i].x;
+        //                besty = y;
+        //            }
+        //        }
+        //    }
+
+        //    if (besti == -1)
+        //        throw new Exception("Index error");
+
+        //    // Perform the actual packing.
+        //    if (fons__atlasAddSkylineLevel(ref atlas, besti, bestx, besty, rw, rh) == 0)
+        //        throw new Exception("AddSkylineLevel error");
+
+
+        //    return (bestx, besty);
+        //}
+
+        //static int GetAtlasRectFits(this TTFAtlas atlas, AtlasNode node, TTFRaw raw, int gw, int gh)
+        //{
+        //    // Checks if there is enough space at the location of skyline span 'i',
+        //    // and return the max height of all skyline spans under that at that location,
+        //    // (think tetris block being dropped at that position). Or -1 if no space found.
+        //    int x = node.X;
+        //    int y = node.Y;
+        //    int spaceLeft;
+        //    if (x + gw > atlas.Width)
+        //        return -1;
+        //    while (spaceLeft > 0)
+        //    {
+        //        if (i == atlas.Nodes.Count)
+        //            return -1;
+        //        y = Math.Max(y, node.Y);
+        //        if (y + gh > atlas.Height)
+        //            return -1;
+        //        spaceLeft -= node.Width;
+        //        ++i;
+        //    }
+        //    return y;
+        //}
+
+        private static (int advanceWidth, int leftSideBearing, int x0, int y0, int x1, int y1) BuildGlyphBitmap(this TTFRaw raw, int index, int size, float scale)
         {
             var (advanceWidth, leftSideBearing) = raw.GetGlyphHMetrics(index);
             var(x0, y0, x1, y1) = raw.GetGlyphBitmapBox(index, scale, scale, 0, 0);
+            return (advanceWidth, leftSideBearing, x0, y0, x1, y1);
         }
 
         private static (int x0, int y0, int x1, int y1) GetGlyphBitmapBox(this TTFRaw raw, int index, float scaleX, float scaleY, float shiftX, float shiftY)
