@@ -140,7 +140,6 @@ namespace TrueType
             return (raw.GetNumber<short>((int)hhea + 4), raw.GetNumber<short>((int)hhea + 6), raw.GetNumber<short>((int)hhea + 8));
         }
 
-
         public const uint FONS_HASH_LUT_SIZE = 256;
         internal static void GetGlyph(this TTFRaw raw, byte code, short size, short blur)
         {
