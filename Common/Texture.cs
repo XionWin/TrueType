@@ -55,10 +55,6 @@ namespace Common
 
         public void LoadRaw(byte[] data, int width, int height, PixelFormat pixelFormat, PixelInternalFormat pixelInternalFormat)
         {
-            if (width < 4)
-            {
-                throw new ArgumentException($"{nameof(width)} error");
-            }
             GL.ActiveTexture(this._textureUnit);
             GL.BindTexture(TextureTarget.Texture2D, this._handle);
 

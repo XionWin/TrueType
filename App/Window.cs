@@ -47,7 +47,7 @@ namespace App
         {
             base.OnLoad();
 
-            GL.ClearColor(Color.White);
+            GL.ClearColor(Color.MidnightBlue);
 
             _vao = GL.GenVertexArray();
             _vbo = GL.GenBuffer();
@@ -67,15 +67,34 @@ namespace App
             this.Shader.EnableAttribs(ColorTextureVertex2.AttribLocations);
 
 
-            List<byte> data = new List<byte>();
-            for (int i = 0; i < 0xFF + 1; i++)
-            {
-                data.Add((byte)i);
-            }
+            var data = new byte[] {
+                0xFF, 0x00, 0x00, 0xFF
+            };
 
-            var rgba = data.ToArray();
+            var x = 0;
+            var y = 0;
+            var w = 2;
+            var h = 2;
+            GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
+            GL.PixelStore(PixelStoreParameter.UnpackSkipPixels, x);
+            GL.PixelStore(PixelStoreParameter.UnpackSkipRows, y);
 
-            _texture = new Texture(TextureUnit.Texture0, TextureMinFilter.Nearest).With(x => x.LoadRaw(rgba, 16, 16, PixelFormat.Alpha, PixelInternalFormat.Alpha));
+            _texture = new Texture(TextureUnit.Texture0, TextureMinFilter.Nearest).With(x => x.LoadRaw(data, w, h, PixelFormat.Alpha, PixelInternalFormat.Alpha));
+
+
+            //var subData = new byte[] { 
+            //    0xFF, 0x00, 0x00, 0xFF
+            //};
+
+            //x = 0;
+            //y = 0;
+            //w = 2;
+            //h = 2;
+
+            //GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
+            //GL.PixelStore(PixelStoreParameter.UnpackSkipPixels, x);
+            //GL.PixelStore(PixelStoreParameter.UnpackSkipRows, y);
+            //GL.TexSubImage2D(TextureTarget.Texture2D, 0, x, y, w, h, PixelFormat.Alpha, PixelType.UnsignedByte, subData);
 
 
             this._uniformViewPort = GL.GetUniformLocation(this.Shader.ProgramHandle, "aViewport");
