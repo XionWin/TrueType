@@ -71,13 +71,9 @@ namespace App
                 0xFF, 0x00, 0x00, 0xFF
             };
 
-            var x = 0;
-            var y = 0;
             var w = 2;
             var h = 2;
             GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
-            GL.PixelStore(PixelStoreParameter.UnpackSkipPixels, x);
-            GL.PixelStore(PixelStoreParameter.UnpackSkipRows, y);
 
             _texture = new Texture(TextureUnit.Texture0, TextureMinFilter.Nearest).With(x => x.LoadRaw(data, w, h, PixelFormat.Alpha, PixelInternalFormat.Alpha));
 
