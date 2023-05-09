@@ -16,8 +16,8 @@ public class GLWindow : GameWindow
         base(
             new GameWindowSettings()
             {
-                UpdateFrequency = 30,
-                RenderFrequency = 120
+                UpdateFrequency = 10,
+                RenderFrequency = 10
             },
             new NativeWindowSettings()
             {

@@ -75,7 +75,7 @@ namespace App
             var h = 2;
             GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
 
-            _texture = new Texture(TextureUnit.Texture0, TextureMinFilter.Nearest).With(x => x.LoadRaw(data, w, h, PixelFormat.Alpha, PixelInternalFormat.Alpha));
+            _texture = new Texture(TextureUnit.Texture0, TextureMinFilter.Nearest).With(x => x.LoadRaw(data, w, h, PixelFormat.Alpha, PixelInternalFormat.Rgba));
 
 
             //var subData = new byte[] { 
