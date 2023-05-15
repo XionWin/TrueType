@@ -8,32 +8,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Remove="Resources\container.png" />
-	  <None Remove="Resources\container2.png" />
-	  <None Remove="Resources\DroidSerif-Regular.ttf" />
-	  <None Remove="Shaders\TrueType.frag" />
-	  <None Remove="Shaders\TrueType.vert" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <EmbeddedResource Include="Resources\container.png">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </EmbeddedResource>
-	  <EmbeddedResource Include="Resources\container2.png">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </EmbeddedResource>
-	  <EmbeddedResource Include="Resources\DroidSerif-Regular.ttf">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </EmbeddedResource>
-	  <EmbeddedResource Include="Shaders\TrueType.frag">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </EmbeddedResource>
-	  <EmbeddedResource Include="Shaders\TrueType.vert">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </EmbeddedResource>
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="OpenTK" Version="4.7.5" />
 	</ItemGroup>
 
@@ -43,9 +17,21 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Update="Fonts\DroidSerif-Regular.ttf">
+	  <EmbeddedResource Include="Resources\container.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </EmbeddedResource>
+	  <EmbeddedResource Include="Resources\container2.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </EmbeddedResource>
+		<EmbeddedResource Include="Resources\Fonts\Zpix.ttf">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
+		</EmbeddedResource>
+	  <EmbeddedResource Include="Shaders\TrueType.frag">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </EmbeddedResource>
+	  <EmbeddedResource Include="Shaders\TrueType.vert">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </EmbeddedResource>
 	</ItemGroup>
 
 </Project>

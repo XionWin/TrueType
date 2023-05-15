@@ -21,10 +21,10 @@ namespace App
 
         private readonly IVertex2[] _vertices = new IVertex2[]
         {
-            new ColorTextureVertex2(new Vector2(100f, 100f), new Vector4(1, 0, 1, 1), new Vector2(0.0f, 0.0f)),
-            new ColorTextureVertex2(new Vector2(612f, 100f), new Vector4(1, 0, 0, 1), new Vector2(1f, 0.0f)),
-            new ColorTextureVertex2(new Vector2(612f, 612f), new Vector4(0, 1, 0, 1), new Vector2(1f, 1f)),
-            new ColorTextureVertex2(new Vector2(100f, 612f), new Vector4(0, 0, 1, 1), new Vector2(0.0f, 1f)),
+            new ColorTextureVertex2(new Vector2(16f, 16f), new Vector4(1, 0, 1, 1), new Vector2(0.0f, 0.0f)),
+            new ColorTextureVertex2(new Vector2(496f, 16f), new Vector4(1, 0, 0, 1), new Vector2(1f, 0.0f)),
+            new ColorTextureVertex2(new Vector2(496f, 496f), new Vector4(0, 1, 0, 1), new Vector2(1f, 1f)),
+            new ColorTextureVertex2(new Vector2(16f, 496f), new Vector4(0, 0, 1, 1), new Vector2(0.0f, 1f)),
         };
 
         private readonly uint[] _indices =
