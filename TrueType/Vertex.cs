@@ -1,17 +1,17 @@
 namespace TrueType;
-public enum MoveType
+public enum VertexType
 {
-    STBTT_vmove = 1,
-    STBTT_vline,
-    STBTT_vcurve
+    MoveTo,
+    LineTo,
+    CurveTo
 }
 
 public struct Vertex
 {
+    public short CenterX { get; set; }
+    public short CenterY { get; set; }
     public short X { get; set; }
     public short Y { get; set; }
-    public short CX { get; set; }
-    public short CY { get; set; }
-    public MoveType Type { get; set; }
+    public VertexType Type { get; set; }
     public byte Padding { get; set; }
 }
