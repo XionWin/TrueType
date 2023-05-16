@@ -67,7 +67,8 @@ namespace TrueType
             
             foreach(var c in "É")
             {
-                this.GetGlyph((uint)c, 8, 0);
+                var vertices = this.GetGlyph((uint)c, 18, 0);
+                
             }
         }
 
@@ -140,7 +141,7 @@ namespace TrueType
         }
 
         public const uint FONS_HASH_LUT_SIZE = 256;
-        internal static void GetGlyph(this TTFRaw raw, uint code, short size, short blur)
+        internal static Vertex[]? GetGlyph(this TTFRaw raw, uint code, short size, short blur)
         {
 
             // Find code point and size.
@@ -157,12 +158,20 @@ namespace TrueType
             var index = raw.GetGlyphIndex((int)code);
             var(advanceWidth, leftSideBearing, x0, y0, x1, y1) = raw.BuildGlyphBitmap(index, size, scale);
 
-            var glyphWidth = x1 - x0 + pad * 2;
-            var glyphHeight = y1 - y0 + pad * 2;
+            var renderWidth = x1 - x0;
+            var renderHeight = y1 - y0;
+            var glyphWidth = renderWidth + pad * 2;
+            var glyphHeight = renderHeight + pad * 2;
 
             AtlasAddRect(Atlas.Instance, raw, glyphWidth, glyphHeight);
 
-            raw.GetGlyphShape(index);
+            var vertices = raw.GetGlyphShape(index);
+
+            return vertices;
+        }
+
+        private static void Rasterize(this TTFRaw raw, Vertex[] vertex, int width, int height)
+        {
 
         }
 
