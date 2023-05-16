@@ -167,12 +167,24 @@ namespace TrueType
 
             var vertices = raw.GetGlyphShape(index);
 
+            raw.Rasterize(vertices!, renderWidth, renderHeight);
             return vertices;
         }
 
-        private static void Rasterize(this TTFRaw raw, Vertex[] vertex, int width, int height)
+        private static void Rasterize(this TTFRaw raw, Vertex[] vertices, int width, int height)
         {
+            vertices.FlattenCurves(0.35f);
+        }
 
+        private static void FlattenCurves(this Vertex[] vertices, float objspace_flatness)
+        {
+            // count how many "moves" there are to get the contour count
+            var n = vertices.Count(x => x.Type is VertexType.MoveTo);
+
+            if(n == 0)
+                return;
+            var contour_lengths = new int[n];
+            
         }
 
         private static void AtlasAddRect(this Atlas atlas, TTFRaw raw, int gw, int gh)
