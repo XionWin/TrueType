@@ -65,7 +65,7 @@ namespace TrueType
             var fontdescender = (float)vMetrics.descent / fontHeight;
             var fontLineHeight = (float)(fontHeight + lineGap) / fontHeight;
             
-            foreach(var c in "B像素字体")
+            foreach(var c in "É")
             {
                 this.GetGlyph((uint)c, 8, 0);
             }

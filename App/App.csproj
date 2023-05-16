@@ -23,6 +23,9 @@
 	  <EmbeddedResource Include="Resources\container2.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </EmbeddedResource>
+		<EmbeddedResource Include="Resources\Fonts\DroidSerif-Italic.ttf">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
 		<EmbeddedResource Include="Resources\Fonts\Zpix.ttf">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</EmbeddedResource>

@@ -9,7 +9,7 @@ namespace App
         {
             System.Diagnostics.Debug.WriteLine("Hello, World!");
 
-            var font = new Font("sans", @"Resources/Fonts/Zpix.ttf");
+            var font = new Font("sans", @"Resources/Fonts/DroidSerif-Italic.ttf");
 
             System.Diagnostics.Debug.WriteLine($"TTF Tables Count: {font.TTF._rawTables.Count()}");
             font.TTF._rawTables.ToList().ForEach(x => System.Diagnostics.Debug.WriteLine($"{x.Key}: {x.Value}"));
