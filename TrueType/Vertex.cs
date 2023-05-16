@@ -1,7 +1,7 @@
 namespace TrueType;
 public enum VertexType
 {
-    MoveTo,
+    MoveTo = 1,
     LineTo,
     CurveTo
 }
