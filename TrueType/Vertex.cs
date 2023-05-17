@@ -15,3 +15,9 @@ public struct Vertex
     public VertexType Type { get; set; }
     public byte Padding { get; set; }
 }
+
+public struct VertexPoint
+{
+    public float X { get; set; }
+    public float Y { get; set; }
+}

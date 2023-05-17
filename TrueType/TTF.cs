@@ -167,25 +167,112 @@ namespace TrueType
 
             var vertices = raw.GetGlyphShape(index);
 
-            raw.Rasterize(vertices!, renderWidth, renderHeight);
+            raw.Rasterize(vertices!, renderWidth, renderHeight, scale);
             return vertices;
         }
 
-        private static void Rasterize(this TTFRaw raw, Vertex[] vertices, int width, int height)
+        private static void Rasterize(this TTFRaw raw, Vertex[] vertices, int width, int height, float scale)
         {
-            vertices.FlattenCurves(0.35f);
+            var flatness_in_pixels = 0.35f;
+            var windings = vertices.FlattenCurves(flatness_in_pixels / scale);
         }
 
-        private static void FlattenCurves(this Vertex[] vertices, float objspace_flatness)
+        private static VertexPoint[]? FlattenCurves(this Vertex[] vertices, float objspace_flatness)
         {
             // count how many "moves" there are to get the contour count
             var n = vertices.Count(x => x.Type is VertexType.MoveTo);
-
+            var num_contours = n;
             if(n == 0)
-                return;
+                return null;
             var contour_lengths = new int[n];
             
+            VertexPoint[]? points = null;
+            var num_points = 0;
+            var start = 0;
+            // make two passes through the points so we don't need to realloc
+            for (var pass = 0; pass < 2; ++pass)
+            {
+                float x = 0, y = 0;
+                if (pass == 1)
+                {
+                    //points = (stbtt__point *) STBTT_malloc(num_points * sizeof(points[0]), userdata);
+                    if (num_points == 0)
+                    {
+                        contour_lengths = null;
+                        num_contours = 0;
+
+                        return null;
+                    }
+                    points = new VertexPoint[num_points];
+                }
+                num_points = 0;
+                n = -1;
+                for (var i = 0; i < vertices.Length; ++i)
+                {
+                    switch (vertices[i].Type)
+                    {
+                        case VertexType.MoveTo:
+                            // start the next contour
+                            if (n >= 0)
+                                contour_lengths[n] = num_points - start;
+                            ++n;
+                            start = num_points;
+
+                            x = vertices[i].X;
+                            y = vertices[i].Y;
+                            stbtt__add_point(points!, num_points++, x, y);
+                            break;
+                        case VertexType.LineTo:
+                            x = vertices[i].X;
+                            y = vertices[i].Y;
+                            stbtt__add_point(points!, num_points++, x, y);
+                            break;
+                        case VertexType.CurveTo:
+                            stbtt__tesselate_curve(points!, ref num_points, x, y,
+                                vertices[i].CenterX, vertices[i].CenterY,
+                                vertices[i].X, vertices[i].Y,
+                                (float)Math.Pow(objspace_flatness, 2), 0);
+                            x = vertices[i].X;
+                            y = vertices[i].Y;
+                            break;
+                    }
+                }
+                contour_lengths[n] = num_points - start;
+            }
+            return points;
         }
+
+        static int stbtt__tesselate_curve(VertexPoint[] points, ref int num_points, float x0, float y0, float x1, float y1, float x2, float y2, float objspace_flatness_squared, int n)
+        {
+            // midpoint
+            float mx = (x0 + 2 * x1 + x2) / 4;
+            float my = (y0 + 2 * y1 + y2) / 4;
+            // versus directly drawn line
+            float dx = (x0 + x2) / 2 - mx;
+            float dy = (y0 + y2) / 2 - my;
+            if (n > 16) // 65536 segments on one curve better be enough!
+                return 1;
+            if (dx * dx + dy * dy > objspace_flatness_squared)
+            { // half-pixel error allowed... need to be smaller if AA
+                stbtt__tesselate_curve(points, ref num_points, x0, y0, (x0 + x1) / 2.0f, (y0 + y1) / 2.0f, mx, my, objspace_flatness_squared, n + 1);
+                stbtt__tesselate_curve(points, ref num_points, mx, my, (x1 + x2) / 2.0f, (y1 + y2) / 2.0f, x2, y2, objspace_flatness_squared, n + 1);
+            }
+            else
+            {
+                stbtt__add_point(points, num_points, x2, y2);
+                num_points = num_points + 1;
+            }
+            return 1;
+        }
+
+        static void stbtt__add_point(VertexPoint[] points, int n, float x, float y)
+        {
+            if (points == null)
+                return; // during first pass, it's unallocated
+            points[n].X = x;
+            points[n].Y = y;
+        }
+
 
         private static void AtlasAddRect(this Atlas atlas, TTFRaw raw, int gw, int gh)
         {
