@@ -179,6 +179,7 @@ namespace TrueType
 
         private static VertexPoint[]? FlattenCurves(this Vertex[] vertices, float objspace_flatness)
         {
+            var objspace_flatness_pow_2 = (float)Math.Pow(objspace_flatness, 2);
             // count how many "moves" there are to get the contour count
             var n = vertices.Count(x => x.Type is VertexType.MoveTo);
             var num_contours = n;
@@ -230,8 +231,7 @@ namespace TrueType
                         case VertexType.CurveTo:
                             stbtt__tesselate_curve(points!, ref num_points, x, y,
                                 vertices[i].CenterX, vertices[i].CenterY,
-                                vertices[i].X, vertices[i].Y,
-                                (float)Math.Pow(objspace_flatness, 2), 0);
+                                vertices[i].X, vertices[i].Y, objspace_flatness_pow_2, 0);
                             x = vertices[i].X;
                             y = vertices[i].Y;
                             break;
