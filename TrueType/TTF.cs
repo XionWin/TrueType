@@ -153,38 +153,111 @@ namespace TrueType
                 blur = 20;
             var pad = blur + 2;
 
-            var scale = raw.GetPixelHeightScale(size);
+            var scaleValue = raw.GetPixelHeightScale(size);
+            var scale = new PointF(scaleValue, scaleValue);
+
+            var shift = new PointF();
         
             var index = raw.GetGlyphIndex((int)code);
-            var(advanceWidth, leftSideBearing, x0, y0, x1, y1) = raw.BuildGlyphBitmap(index, size, scale);
+            var(advanceWidth, leftSideBearing, x0, y0, x1, y1) = raw.BuildGlyphBitmap(index, size, scale, shift);
 
-            var renderWidth = x1 - x0;
-            var renderHeight = y1 - y0;
-            var glyphWidth = renderWidth + pad * 2;
-            var glyphHeight = renderHeight + pad * 2;
+            var renderSize = new Size(x1 - x0, y1 - y0);
+            var glyphSize = new Size(renderSize.Width + pad * 2, renderSize.Height + pad * 2);
 
-            AtlasAddRect(Atlas.Instance, raw, glyphWidth, glyphHeight);
+            var off = new Point(x0, y0);
+
+            AtlasAddRect(Atlas.Instance, raw, glyphSize);
 
             var vertices = raw.GetGlyphShape(index);
 
-            raw.Rasterize(vertices!, renderWidth, renderHeight, scale);
+            raw.Rasterize(vertices!, renderSize, scale, shift, off);
             return vertices;
         }
 
-        private static void Rasterize(this TTFRaw raw, Vertex[] vertices, int width, int height, float scale)
+        private static void Rasterize(this TTFRaw raw, Vertex[] vertices, Size renderSize, PointF scale, PointF shift, Point off)
         {
             var flatness_in_pixels = 0.35f;
-            var windings = vertices.FlattenCurves(flatness_in_pixels / scale);
+            var windings = vertices.FlattenCurves(flatness_in_pixels / Math.Min(scale.X, scale.Y));
 
             var data = System.Text.Json.JsonSerializer.Serialize(windings);
 
+            windings!.stbtt__rasterize(renderSize, scale, shift, off, true);
         }
-        private static VertexPoint[][]? FlattenCurves(this Vertex[] vertices, float objspace_flatness)
+
+        static void stbtt__rasterize(this PointF[][] windings, Size renderSize, PointF scale, PointF shift, Point off, bool isInvented)
+        {
+            float y_scale_inv = isInvented ? -scale.Y : scale.Y;
+            int vsubsample = renderSize.Height < 8 ? 15 : 5;
+            // vsubsample should divide 255 evenly; otherwise we won't reach full opacity
+            
+            //e = (stbtt__edge) STBTT_malloc(sizeof(*e) * (n+1), userdata); // add an extra one as a sentinel
+            var edges = new List<Edge>();
+
+            for (int i = 0; i < windings.Length; i++)
+            {
+                var points = windings[i];
+
+                for (int j = 1; j < points.Length; j++)
+                {
+                    var current = points[j];
+                    var last = points[j - 1];
+
+                    // skip the edge if horizontal
+                    if (current.Y == last.Y)
+                        continue;
+
+                    var p0 = last;
+                    var p1 = current;
+                    var inventedFlag = false;
+
+                    if(isInvented)
+                    {
+                        if(current.Y > last.Y)
+                        {
+                            inventedFlag = true;
+                            p0 = current;
+                            p1 = last;
+                        }
+                    }
+                    else
+                    {
+                        if(current.Y < last.Y)
+                        {
+                            inventedFlag = true;
+                            p0 = last;
+                            p1 = current;
+                        }
+                    }
+
+                    var edge = new Edge();
+                    edge.P0 = new PointF(p0.X * scale.X + shift.X,
+                                    p0.Y * y_scale_inv * vsubsample + shift.Y);
+                    edge.P1 = new PointF(p1.X * scale.X + shift.X, 
+                                    p1.Y * y_scale_inv * vsubsample + shift.Y);
+                    edge.IsInvented = inventedFlag;
+                    edges.Add(edge);
+                }
+            }
+
+
+            // // now sort the edges by their highest point (should snap to integer, and then by x)
+            // //STBTT_sort(e, n, sizeof(e[0]), stbtt__edge_compare);
+            // // Sort the array
+            // //Quicksort(e, 0, n);
+            // Array.Sort(e, 0, n);
+
+            // // now, traverse the scanlines and find the intersections on each scanline, use xor winding rule
+            // stbtt__rasterize_sorted_edges(ref result, e, n, vsubsample, off_x, off_y, userdata);
+
+            //STBTT_free(e, userdata);
+        }
+
+        private static PointF[][]? FlattenCurves(this Vertex[] vertices, float objspace_flatness)
         {
             var objspace_flatness_pow_2 = (float)Math.Pow(objspace_flatness, 2);
 
-            var pointsList = new List<VertexPoint[]>();
-            List<VertexPoint>? currentPoints = null;
+            var pointsList = new List<PointF[]>();
+            List<PointF>? currentPoints = null;
 
             float x = 0, y = 0;
             for(var i = 0; i < vertices.Length; ++i)
@@ -197,21 +270,21 @@ namespace TrueType
                         {
                             pointsList.Add(currentPoints.ToArray());
                         }
-                        currentPoints = new List<VertexPoint>();
+                        currentPoints = new List<PointF>();
 
                         x = vertices[i].X;
                         y = vertices[i].Y;
-                        currentPoints.Add(new VertexPoint(x, y));
+                        currentPoints.Add(new PointF(x, y));
                         break;
                     case VertexType.LineTo:
                         x = vertices[i].X;
                         y = vertices[i].Y;
-                        currentPoints!.Add(new VertexPoint(x, y));
+                        currentPoints!.Add(new PointF(x, y));
                         break;
                     case VertexType.CurveTo:
                         currentPoints!.stbtt__tesselate_curve(x, y,
                             vertices[i].CenterX, vertices[i].CenterY,
-                            vertices[i].X, vertices[i].Y, objspace_flatness_pow_2, 0);
+                            vertices[i].X, vertices[i].Y, objspace_flatness_pow_2);
                         x = vertices[i].X;
                         y = vertices[i].Y;
                         break;
@@ -224,7 +297,7 @@ namespace TrueType
             return pointsList.ToArray();
         }
 
-        static int stbtt__tesselate_curve(this List<VertexPoint> points, float x0, float y0, float x1, float y1, float x2, float y2, float objspace_flatness_squared, int n)
+        static int stbtt__tesselate_curve(this List<PointF> points, float x0, float y0, float x1, float y1, float x2, float y2, float objspace_flatness_squared, int n = 0)
         {
             // midpoint
             float mx = (x0 + 2 * x1 + x2) / 4;
@@ -235,21 +308,22 @@ namespace TrueType
             if (n > 16) // 65536 segments on one curve better be enough!
                 return 1;
             if (dx * dx + dy * dy > objspace_flatness_squared)
-            { // half-pixel error allowed... need to be smaller if AA
+            { 
+                // half-pixel error allowed... need to be smaller if AA
                 stbtt__tesselate_curve(points, x0, y0, (x0 + x1) / 2.0f, (y0 + y1) / 2.0f, mx, my, objspace_flatness_squared, n + 1);
                 stbtt__tesselate_curve(points, mx, my, (x1 + x2) / 2.0f, (y1 + y2) / 2.0f, x2, y2, objspace_flatness_squared, n + 1);
             }
             else
             {
-                points.Add(new VertexPoint(x2, y2));
+                points.Add(new PointF(x2, y2));
             }
             return 1;
         }
 
 
-        private static void AtlasAddRect(this Atlas atlas, TTFRaw raw, int gw, int gh)
+        private static void AtlasAddRect(this Atlas atlas, TTFRaw raw, Size glyphSize)
         {
-            atlas.FitAtlas(gw, gh);
+            atlas.FitAtlas(glyphSize);
         }
 
         //private static (int x, int y) atlasAddRectBestPos(this TTFAtlas atlas, TTFRaw raw, int gw, int gh)

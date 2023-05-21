@@ -324,14 +324,14 @@ public static class Glyph
             v.CenterY = (short)cy;
         }
 
-    public static (int advanceWidth, int leftSideBearing, int x0, int y0, int x1, int y1) BuildGlyphBitmap(this TTFRaw raw, int index, int size, float scale)
+    public static (int advanceWidth, int leftSideBearing, int x0, int y0, int x1, int y1) BuildGlyphBitmap(this TTFRaw raw, int index, int size, PointF scale, PointF shift)
     {
         var (advanceWidth, leftSideBearing) = raw.GetGlyphHMetrics(index);
-        var (x0, y0, x1, y1) = raw.GetGlyphBitmapBox(index, scale, scale, 0, 0);
+        var (x0, y0, x1, y1) = raw.GetGlyphBitmapBox(index, scale, shift);
         return (advanceWidth, leftSideBearing, x0, y0, x1, y1);
     }
 
-    private static (int x0, int y0, int x1, int y1) GetGlyphBitmapBox(this TTFRaw raw, int index, float scaleX, float scaleY, float shiftX, float shiftY)
+    private static (int x0, int y0, int x1, int y1) GetGlyphBitmapBox(this TTFRaw raw, int index, PointF scale, PointF shift)
     {
         var offset = raw.GetGlyphOffset(index);
         if (offset == 0)
@@ -343,10 +343,10 @@ public static class Glyph
         var y1 = (int)raw.GetNumber<short>(offset + 8);
 
 
-        var ix0 = (int)Math.Floor(x0 * scaleX + shiftX);
-        var iy0 = (int)-Math.Ceiling(y1 * scaleY + shiftY);
-        var ix1 = (int)Math.Ceiling(x1 * scaleX + shiftX);
-        var iy1 = (int)-Math.Floor(y0 * scaleY + shiftY);
+        var ix0 = (int)Math.Floor(x0 * scale.X + shift.X);
+        var iy0 = (int)-Math.Ceiling(y1 * scale.Y + shift.Y);
+        var ix1 = (int)Math.Ceiling(x1 * scale.X + shift.X);
+        var iy1 = (int)-Math.Floor(y0 * scale.Y + shift.Y);
         return (ix0, iy0, ix1, iy1);
     }
 

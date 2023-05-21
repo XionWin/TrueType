@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -39,20 +38,20 @@ namespace TrueType
 
     internal static class AtlasExtension
     {
-        public static void FitAtlas(this Atlas atlas, int gw, int gh)
+        public static void FitAtlas(this Atlas atlas, Size glyphSize)
         {
             var atlasSize = new Size(atlas.Width, atlas.Height);
-            var points = atlas.Skylines.Select(x => FitSkyline(x, atlasSize, gw, gh)).Where(x => x is not null).ToArray();
+            var points = atlas.Skylines.Select(x => FitSkyline(x, atlasSize, glyphSize)).Where(x => x is not null).ToArray();
             var bestPoint = points.Min(x => x!.Value.Y);
         }
 
-        public static Point? FitSkyline(this Skyline skyline, Size atlasSize, int gw, int gh)
+        public static System.Drawing.Point? FitSkyline(this Skyline skyline, Size atlasSize, Size glyphSize)
         {
-            if (skyline.X + gw <= atlasSize.Width)
+            if (skyline.X + glyphSize.Width <= atlasSize.Width)
             {
-                if (skyline.Y + gh <= atlasSize.Height)
+                if (skyline.Y + glyphSize.Height <= atlasSize.Height)
                 {
-                    return new Point(skyline.X + gw, skyline.Y);
+                    return new System.Drawing.Point(skyline.X + glyphSize.Width, skyline.Y);
                 }
                 else
                     return null;
