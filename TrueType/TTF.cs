@@ -199,33 +199,33 @@ namespace TrueType
 
                 for (int j = 1; j < points.Length; j++)
                 {
-                    var current = points[j];
-                    var last = points[j - 1];
+                    var p0 = points[j];
+                    var p1 = points[j - 1];
 
                     // skip the edge if horizontal
-                    if (current.Y == last.Y)
+                    if (p0.Y == p1.Y)
                         continue;
 
-                    var p0 = last;
-                    var p1 = current;
                     var inventedFlag = false;
 
                     if(isInvented)
                     {
-                        if(current.Y > last.Y)
+                        if(p1.Y > p0.Y)
                         {
                             inventedFlag = true;
-                            p0 = current;
-                            p1 = last;
+                            var temp = p0;
+                            p0 = p1;
+                            p1 = temp;
                         }
                     }
                     else
                     {
-                        if(current.Y < last.Y)
+                        if(p0.Y < p1.Y)
                         {
                             inventedFlag = true;
-                            p0 = last;
-                            p1 = current;
+                            var temp = p0;
+                            p0 = p1;
+                            p1 = temp;
                         }
                     }
 
@@ -250,6 +250,8 @@ namespace TrueType
             // stbtt__rasterize_sorted_edges(ref result, e, n, vsubsample, off_x, off_y, userdata);
 
             //STBTT_free(e, userdata);
+
+            var data = System.Text.Json.JsonSerializer.Serialize(edges);
         }
 
         private static PointF[][]? FlattenCurves(this Vertex[] vertices, float objspace_flatness)
