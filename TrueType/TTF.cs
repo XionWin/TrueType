@@ -177,17 +177,208 @@ namespace TrueType
         private static void Rasterize(this TTFRaw raw, Vertex[] vertices, Size renderSize, PointF scale, PointF shift, Point off)
         {
             var flatness_in_pixels = 0.35f;
+            int vsubsample = renderSize.Height < 8 ? 15 : 5;
             var windings = vertices.FlattenCurves(flatness_in_pixels / Math.Min(scale.X, scale.Y));
 
             var data = System.Text.Json.JsonSerializer.Serialize(windings);
 
-            windings!.stbtt__rasterize(renderSize, scale, shift, off, true);
+            var edges = windings!.stbtt__rasterize(vsubsample, scale, shift, off, true);
+
+            edges!.stbtt__rasterize_sorted_edges(renderSize, vsubsample, off);
         }
 
-        static void stbtt__rasterize(this PointF[][] windings, Size renderSize, PointF scale, PointF shift, Point off, bool isInvented)
+        static void stbtt__rasterize_sorted_edges(this Edge[] edges, Size renderSize, int vsubsample, Point off)
+        {
+            var activeIsNext = new ActiveEdge();
+            
+            // int y, j = 0, eIndex = 0;
+            int max_weight = (255 / vsubsample);        // weight per vertical scanline
+            byte[] scanline_data = new byte[480], scanline;
+
+            if (renderSize.Width > 480)
+            {
+                // scanline = (byte[])userdata;
+                // Array.Resize(ref scanline, result.w);
+                throw new NotImplementedException();
+            }
+            else
+                scanline = scanline_data;
+
+            var y = off.Y * vsubsample;
+
+            edges = edges.Append(new Edge(new PointF(0, (off.Y + renderSize.Height) * (float)vsubsample + 1), new PointF(), false)).ToArray();
+
+            var j = 0;
+
+            while (j < renderSize.Height)
+            {
+                // vertical subsample index
+                for (var s = 0; s < vsubsample; ++s)
+                {
+                    // find center of pixel for this scanline
+                    float scan_y = y + 0.5f;
+                    ActiveEdge stepIsNext = activeIsNext;
+
+                    // update all active edges;
+                    // remove all active edges that terminate before the center of this scanline
+                    // while (stepIsNext.Next is not null)
+                    // {
+                    // }
+
+                    // for (;;)
+                    // {
+                    //     bool changed = false;
+                    //     stepIsNext = activeIsNext;
+                    //     while (stepIsNext.Next != null && stepIsNext.Next.Next != null)
+                    //     {
+                    //          if (stepIsNext.Next.X > stepIsNext.Next.Next.X)
+                    //         {
+                    //             ActiveEdge t = stepIsNext.Next;
+                    //             ActiveEdge q = t.Next;
+
+                    //             t.Next = q.Next;
+                    //             q.Next = t;
+                    //             stepIsNext.Next = q;
+                    //             changed = true;
+                    //         }
+                    //     }
+                    //     if (!changed)
+                    //         break;
+                    // }
+
+                    // insert all edges that start before the center of this scanline -- omit ones that also end on this scanline
+                    var eIndex = 0;
+                    while (edges[eIndex].P0.Y <= scan_y)
+                    {
+                        if (edges[eIndex].P1.Y > scan_y)
+                        {
+                            ActiveEdge z = edges[eIndex].new_active(off.X, scan_y);
+                             // find insertion point
+                            if (activeIsNext.Next == null)
+                                activeIsNext.Next = z;
+                            else if (z.X < activeIsNext.Next.X)
+                            {
+                                // insert at front
+                                z.Next = activeIsNext.Next;
+                                activeIsNext.Next = z;
+                            }
+                            else
+                            {
+                                // find thing to insert AFTER
+                                var p = activeIsNext.Next;
+                                while (p.Next != null && p.Next.X < z.X)
+                                    p = p.Next;
+                                // at this point, p->next->x is NOT < z->x
+                                z.Next = p.Next;
+                                p.Next = z;
+                            }
+                        }
+                        ++eIndex;
+                    }
+
+                    // now process all active edges in XOR fashion
+                    if (activeIsNext.Next != null)
+                        stbtt__fill_active_edges(scanline, renderSize.Width, activeIsNext.Next, max_weight);
+
+                    ++y;
+                }
+                
+
+
+            }
+
+        }
+
+        static void stbtt__fill_active_edges(byte[] scanline, int len, ActiveEdge? edge, int max_weight)
+        {
+            byte ab = 0;
+            // non-zero winding fill
+            int x0 = 0, w = 0;
+
+            while (edge != null)
+            {
+                if (w == 0)
+                {
+                    // if we're currently at zero, we need to record the edge start point
+                    x0 = edge.X;
+                    w += edge.IsValid ? 1 : -1;
+                }
+                else
+                {
+                    int x1 = edge.X;
+                    w += edge.IsValid ? 1 : -1;
+                    // if we went to zero, we need to draw
+                    if (w == 0)
+                    {
+                        int i = x0 >> FIXSHIFT;
+                        int j = x1 >> FIXSHIFT;
+
+                        if (i < len && j >= 0)
+                        {
+                            if (i == j)
+                            {
+                                // x0,x1 are the same pixel, so compute combined coverage
+                                ab = (byte)(scanline[i] + (byte)((x1 - x0) * max_weight >> FIXSHIFT));
+                                scanline[i] = ab;
+                            }
+                            else
+                            {
+                                if (i >= 0) // add antialiasing for x0
+                                {
+                                    ab = (byte)(scanline[i] + (byte)(((FIX - (x0 & FIXMASK)) * max_weight) >> FIXSHIFT));
+                                    scanline[i] = ab;
+                                }
+                                else
+                                    i = -1; // clip
+
+                                if (j < len) // add antialiasing for x1
+                                {
+                                    ab = (byte)(scanline[j] + (byte)(((x1 & FIXMASK) * max_weight) >> FIXSHIFT));
+                                    scanline[j] = ab;
+                                }
+                                else
+                                    j = len; // clip
+
+                                for (++i; i < j; ++i) // fill pixels between x0 and x1
+                                {
+                                    ab = (byte)(scanline[i] + (byte)max_weight);
+                                    scanline[i] = ab;
+                                }
+                            }
+                        }
+                    }
+                }
+                edge = edge.Next;
+            }
+        }
+
+        const int FIXSHIFT = 10;
+        const int FIX = (1 << FIXSHIFT);
+        const int FIXMASK = (FIX - 1);
+        static ActiveEdge new_active(this Edge edge, int off_x, float start_point)
+        {
+            //stbtt__active_edge z = (stbtt__active_edge *) STBTT_malloc(sizeof(*z), userdata); // @TODO: make a pool of these!!!
+            var z = new ActiveEdge();
+            float dxdy = (edge.P1.X - edge.P0.X) / (edge.P1.Y - edge.P0.Y);
+            //STBTT_assert(e->y0 <= start_point);
+            if (z == null)
+                return z;
+            // round dx down to avoid going too far
+            if (dxdy < 0)
+                z.DX = -(int)Math.Floor(FIX * -dxdy);
+            else
+                z.DX = (int)Math.Floor(FIX * dxdy);
+            z.X = (int)Math.Floor(FIX * (edge.P0.X + dxdy * (start_point - edge.P0.Y)));
+            z.X -= off_x * FIX;
+            z.EY = edge.P1.Y;
+            z.Next = null;
+            z.IsValid = edge.IsInvented;
+            return z;
+        }
+
+        static Edge[]? stbtt__rasterize(this PointF[][] windings, int vsubsample, PointF scale, PointF shift, Point off, bool isInvented)
         {
             float y_scale_inv = isInvented ? -scale.Y : scale.Y;
-            int vsubsample = renderSize.Height < 8 ? 15 : 5;
             // vsubsample should divide 255 evenly; otherwise we won't reach full opacity
             
             //e = (stbtt__edge) STBTT_malloc(sizeof(*e) * (n+1), userdata); // add an extra one as a sentinel
@@ -238,20 +429,14 @@ namespace TrueType
                     edges.Add(edge);
                 }
             }
-
-
-            // // now sort the edges by their highest point (should snap to integer, and then by x)
-            // //STBTT_sort(e, n, sizeof(e[0]), stbtt__edge_compare);
-            // // Sort the array
-            // //Quicksort(e, 0, n);
-            // Array.Sort(e, 0, n);
+            edges.Sort();
 
             // // now, traverse the scanlines and find the intersections on each scanline, use xor winding rule
             // stbtt__rasterize_sorted_edges(ref result, e, n, vsubsample, off_x, off_y, userdata);
 
             //STBTT_free(e, userdata);
 
-            var data = System.Text.Json.JsonSerializer.Serialize(edges);
+            return edges.ToArray();
         }
 
         private static PointF[][]? FlattenCurves(this Vertex[] vertices, float objspace_flatness)

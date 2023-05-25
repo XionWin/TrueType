@@ -52,7 +52,7 @@ public struct Size
     }
 }
 
-public struct Edge
+public struct Edge : IComparable
 {
     public PointF P0 { get; set; }
     public PointF P1 { get; set; }
@@ -65,4 +65,27 @@ public struct Edge
         this.P1 = p1;
         this.IsInvented = IsInvent;
     }
+
+    public int CompareTo(object? obj)
+    {
+        if(obj is Edge edge)
+        {
+            if (this.P0.Y < edge.P0.Y)
+                return -1;
+            if (this.P0.Y > edge.P0.Y)
+                return 1;
+            return 0;
+        }
+        else
+            return 1;
+    }
+}
+
+public class ActiveEdge
+{
+    public int X { get; set; }
+    public int DX { get; set; }
+    public float EY { get; set; }
+    public bool IsValid { get; set; }
+    public ActiveEdge? Next { get; set; }
 }
