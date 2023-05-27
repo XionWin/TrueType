@@ -5,6 +5,7 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -67,12 +68,18 @@ namespace App
             this.Shader.EnableAttribs(ColorTextureVertex2.AttribLocations);
 
 
-            var data = new byte[] {
-                0xFF, 0x00, 0x00, 0xFF
-            };
+            var data = new byte[230400];
 
-            var w = 2;
-            var h = 2;
+            using (var fileStream = new System.IO.FileStream(@"raw.dat", FileMode.Open, FileAccess.Read))
+            {
+                using (var reader = new System.IO.BinaryReader(fileStream))
+                {
+                    reader.Read(data, 0, data.Length);
+                }
+            }
+
+            var w = 480;
+            var h = 480;
             GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
 
             _texture = new Texture(TextureUnit.Texture0, TextureMinFilter.Nearest).With(x => x.LoadRaw(data, w, h, PixelFormat.Alpha, PixelInternalFormat.Rgba));

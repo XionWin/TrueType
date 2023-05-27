@@ -189,6 +189,8 @@ namespace TrueType
 
         static void stbtt__rasterize_sorted_edges(this Edge[] edges, Size renderSize, int vsubsample, Point off)
         {
+            var pixels = new byte[230400];
+
             var activeIsNext = new ActiveEdge();
             
             // int y, j = 0, eIndex = 0;
@@ -209,9 +211,11 @@ namespace TrueType
             edges = edges.Append(new Edge(new PointF(0, (off.Y + renderSize.Height) * (float)vsubsample + 1), new PointF(), false)).ToArray();
 
             var j = 0;
+            var eIndex = 0;
 
             while (j < renderSize.Height)
             {
+                Array.Clear(scanline, 0, scanline.Length);
                 // vertical subsample index
                 for (var s = 0; s < vsubsample; ++s)
                 {
@@ -221,33 +225,46 @@ namespace TrueType
 
                     // update all active edges;
                     // remove all active edges that terminate before the center of this scanline
-                    // while (stepIsNext.Next is not null)
-                    // {
-                    // }
+                    while (stepIsNext.Next is not null)
+                    {
+                        var z = stepIsNext.Next;
+                        if (z.EY <= scan_y)
+                        {
+                            stepIsNext.Next = z.Next; // delete from list
+                                                      //STBTT_assert(z->valid);
+                            z.Valid = 0;
+                            //STBTT_free(z, userdata);
+                        }
+                        else
+                        {
+                            z.X += z.DX; // advance to position for current scanline
+                            stepIsNext = stepIsNext.Next; // advance through list
+                        }
+                    }
 
-                    // for (;;)
-                    // {
-                    //     bool changed = false;
-                    //     stepIsNext = activeIsNext;
-                    //     while (stepIsNext.Next != null && stepIsNext.Next.Next != null)
-                    //     {
-                    //          if (stepIsNext.Next.X > stepIsNext.Next.Next.X)
-                    //         {
-                    //             ActiveEdge t = stepIsNext.Next;
-                    //             ActiveEdge q = t.Next;
+                    for (; ; )
+                    {
+                        bool changed = false;
+                        stepIsNext = activeIsNext;
+                        while (stepIsNext.Next != null && stepIsNext.Next.Next != null)
+                        {
+                            if (stepIsNext.Next.X > stepIsNext.Next.Next.X)
+                            {
+                                ActiveEdge t = stepIsNext.Next;
+                                ActiveEdge q = t.Next;
 
-                    //             t.Next = q.Next;
-                    //             q.Next = t;
-                    //             stepIsNext.Next = q;
-                    //             changed = true;
-                    //         }
-                    //     }
-                    //     if (!changed)
-                    //         break;
-                    // }
+                                t.Next = q.Next;
+                                q.Next = t;
+                                stepIsNext.Next = q;
+                                changed = true;
+                            }
+                            stepIsNext = stepIsNext.Next;
+                        }
+                        if (!changed)
+                            break;
+                    }
 
                     // insert all edges that start before the center of this scanline -- omit ones that also end on this scanline
-                    var eIndex = 0;
                     while (edges[eIndex].P0.Y <= scan_y)
                     {
                         if (edges[eIndex].P1.Y > scan_y)
@@ -282,10 +299,20 @@ namespace TrueType
 
                     ++y;
                 }
-                
 
+                Array.Copy(scanline, 0, pixels, (j * 480), renderSize.Width);
+
+                ++j;
 
             }
+
+            //using (var fileStream = new System.IO.FileStream(@"raw.dat", FileMode.CreateNew, FileAccess.Write))
+            //{
+            //    using (var writer = new System.IO.BinaryWriter(fileStream))
+            //    {
+            //        writer.Write(pixels);
+            //    }
+            //}
 
         }
 
@@ -301,12 +328,12 @@ namespace TrueType
                 {
                     // if we're currently at zero, we need to record the edge start point
                     x0 = edge.X;
-                    w += edge.IsValid ? 1 : -1;
+                    w += edge.Valid;
                 }
                 else
                 {
                     int x1 = edge.X;
-                    w += edge.IsValid ? 1 : -1;
+                    w += edge.Valid;
                     // if we went to zero, we need to draw
                     if (w == 0)
                     {
@@ -372,7 +399,7 @@ namespace TrueType
             z.X -= off_x * FIX;
             z.EY = edge.P1.Y;
             z.Next = null;
-            z.IsValid = edge.IsInvented;
+            z.Valid = edge.IsInvented ? 1 : -1;
             return z;
         }
 

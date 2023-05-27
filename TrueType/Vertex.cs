@@ -86,6 +86,6 @@ public class ActiveEdge
     public int X { get; set; }
     public int DX { get; set; }
     public float EY { get; set; }
-    public bool IsValid { get; set; }
+    public int Valid { get; set; }
     public ActiveEdge? Next { get; set; }
 }
