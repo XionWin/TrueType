@@ -300,19 +300,20 @@ namespace TrueType
                     ++y;
                 }
 
-                Array.Copy(scanline, 0, pixels, (j * 480), renderSize.Width);
+                Array.Copy(scanline, 0, pixels, 240 + 0 * 480 + (j * 480), renderSize.Width);
 
                 ++j;
 
             }
 
-            //using (var fileStream = new System.IO.FileStream(@"raw.dat", FileMode.CreateNew, FileAccess.Write))
-            //{
-            //    using (var writer = new System.IO.BinaryWriter(fileStream))
-            //    {
-            //        writer.Write(pixels);
-            //    }
-            //}
+            System.IO.File.Delete(@"raw.dat");
+            using (var fileStream = new System.IO.FileStream(@"raw.dat", FileMode.CreateNew, FileAccess.Write))
+            {
+                using (var writer = new System.IO.BinaryWriter(fileStream))
+                {
+                    writer.Write(pixels);
+                }
+            }
 
         }
 

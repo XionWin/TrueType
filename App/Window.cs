@@ -44,6 +44,9 @@ namespace App
 
         private int _uniformViewPort;
 
+
+        private byte[]? _data = null;
+
         protected override void OnLoad()
         {
             base.OnLoad();
@@ -68,13 +71,16 @@ namespace App
             this.Shader.EnableAttribs(ColorTextureVertex2.AttribLocations);
 
 
-            var data = new byte[230400];
-
-            using (var fileStream = new System.IO.FileStream(@"raw.dat", FileMode.Open, FileAccess.Read))
+            if(_data is null)
             {
-                using (var reader = new System.IO.BinaryReader(fileStream))
+                _data = new byte[230400];
+
+                using (var fileStream = new System.IO.FileStream(@"raw.dat", FileMode.Open, FileAccess.Read))
                 {
-                    reader.Read(data, 0, data.Length);
+                    using (var reader = new System.IO.BinaryReader(fileStream))
+                    {
+                        reader.Read(_data, 0, _data.Length);
+                    }
                 }
             }
 
@@ -82,7 +88,7 @@ namespace App
             var h = 480;
             GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
 
-            _texture = new Texture(TextureUnit.Texture0, TextureMinFilter.Nearest).With(x => x.LoadRaw(data, w, h, PixelFormat.Alpha, PixelInternalFormat.Rgba));
+            _texture = new Texture(TextureUnit.Texture0, TextureMinFilter.Nearest).With(x => x.LoadRaw(_data, w, h, PixelFormat.Alpha, PixelInternalFormat.Rgba));
 
 
             //var subData = new byte[] { 
