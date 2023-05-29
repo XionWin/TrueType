@@ -65,9 +65,9 @@ namespace TrueType
             var fontdescender = (float)vMetrics.descent / fontHeight;
             var fontLineHeight = (float)(fontHeight + lineGap) / fontHeight;
             
-            foreach(var c in "É")
+            foreach(var c in "B")
             {
-                var vertices = this.GetGlyph((uint)c, 18, 0);
+                var vertices = this.GetGlyph((uint)c, 256, 0);
                 
             }
         }
@@ -189,22 +189,12 @@ namespace TrueType
 
         static void stbtt__rasterize_sorted_edges(this Edge[] edges, Size renderSize, int vsubsample, Point off)
         {
-            var pixels = new byte[230400];
-
             var activeIsNext = new ActiveEdge();
             
             // int y, j = 0, eIndex = 0;
             int max_weight = (255 / vsubsample);        // weight per vertical scanline
-            byte[] scanline_data = new byte[480], scanline;
+            var scanline = Cache.Instance.RequestScanline(renderSize.Width);
 
-            if (renderSize.Width > 480)
-            {
-                // scanline = (byte[])userdata;
-                // Array.Resize(ref scanline, result.w);
-                throw new NotImplementedException();
-            }
-            else
-                scanline = scanline_data;
 
             var y = off.Y * vsubsample;
 
@@ -231,9 +221,7 @@ namespace TrueType
                         if (z.EY <= scan_y)
                         {
                             stepIsNext.Next = z.Next; // delete from list
-                                                      //STBTT_assert(z->valid);
                             z.Valid = 0;
-                            //STBTT_free(z, userdata);
                         }
                         else
                         {
@@ -300,20 +288,12 @@ namespace TrueType
                     ++y;
                 }
 
-                Array.Copy(scanline, 0, pixels, 240 + 0 * 480 + (j * 480), renderSize.Width);
+                Array.Copy(scanline, 0, Cache.Instance.Pixels, 240 + 0 * 480 + (j * 480), renderSize.Width);
 
                 ++j;
 
             }
 
-            System.IO.File.Delete(@"raw.dat");
-            using (var fileStream = new System.IO.FileStream(@"raw.dat", FileMode.CreateNew, FileAccess.Write))
-            {
-                using (var writer = new System.IO.BinaryWriter(fileStream))
-                {
-                    writer.Write(pixels);
-                }
-            }
 
         }
 

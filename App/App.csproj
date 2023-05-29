@@ -8,6 +8,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Resources\Fonts\DroidSerif-Regular.ttf" />
+	  <None Remove="Resources\Fonts\PixelMix.ttf" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="OpenTK" Version="4.7.5" />
 	</ItemGroup>
 
@@ -25,6 +30,12 @@
 	  </EmbeddedResource>
 		<EmbeddedResource Include="Resources\Fonts\DroidSerif-Italic.ttf">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Fonts\DroidSerif-Regular.ttf">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Fonts\PixelMix.ttf">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</EmbeddedResource>
 		<EmbeddedResource Include="Resources\Fonts\Zpix.ttf">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

@@ -71,24 +71,12 @@ namespace App
             this.Shader.EnableAttribs(ColorTextureVertex2.AttribLocations);
 
 
-            if(_data is null)
-            {
-                _data = new byte[230400];
-
-                using (var fileStream = new System.IO.FileStream(@"raw.dat", FileMode.Open, FileAccess.Read))
-                {
-                    using (var reader = new System.IO.BinaryReader(fileStream))
-                    {
-                        reader.Read(_data, 0, _data.Length);
-                    }
-                }
-            }
 
             var w = 480;
             var h = 480;
             GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
 
-            _texture = new Texture(TextureUnit.Texture0, TextureMinFilter.Nearest).With(x => x.LoadRaw(_data, w, h, PixelFormat.Alpha, PixelInternalFormat.Rgba));
+            _texture = new Texture(TextureUnit.Texture0, TextureMinFilter.Nearest).With(x => x.LoadRaw(TrueType.Cache.Instance.Pixels, w, h, PixelFormat.Alpha, PixelInternalFormat.Rgba));
 
 
             //var subData = new byte[] { 
