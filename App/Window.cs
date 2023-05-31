@@ -45,8 +45,6 @@ namespace App
         private int _uniformViewPort;
 
 
-        private byte[]? _data = null;
-
         protected override void OnLoad()
         {
             base.OnLoad();

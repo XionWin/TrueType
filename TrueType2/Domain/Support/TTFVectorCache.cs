@@ -1,9 +1,21 @@
-﻿namespace TrueType2.Domain.Support
+﻿using Extension;
+using System;
+using TrueType2.Extension;
+
+namespace TrueType2.Domain.Support
 {
-    internal class TTFVectorCache: Dictionary<string, TTFRawCache>
+    internal class TTFVectorCache : Dictionary<int, TTFVector>
     {
-        private static TTFVectorCache _Instance = new TTFVectorCache();
-        public static TTFVectorCache Instance = _Instance;
+        public TTFRaw Raw { get; private set; }
+        public TTFVectorCache(TTFRaw raw)
+        {
+            Raw = raw;
+        }
+
+        public TTFVector TryGet(char c) =>
+            this.Raw.GetGlyphIndex((int)c) is var index && this.ContainsKey(index) ?
+                this[index]
+                : this.Raw.GetVector(index).With(x => this.Add(index, x));
     }
 
 }
