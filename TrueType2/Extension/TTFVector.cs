@@ -4,8 +4,8 @@ namespace TrueType2.Extension
 {
     public static class TTTFVectorExtension
     {
-        public static TTFVector GetVector(this TTFRaw raw, int code) =>
-            new TTFVector(raw.GetShape(raw.GetGlyphIndex((int)code)));
+        public static TTFVector GetVector(this TTFRaw raw, int index) =>
+            new TTFVector(raw.GetShape(index));
 
         public static TTFVertex[] GetShape(this TTFRaw raw, int index)
         {

@@ -1,4 +1,5 @@
-﻿using TrueType2.Domain.Support;
+﻿using Extension;
+using TrueType2.Domain.Support;
 using TrueType2.Extension;
 
 namespace TrueType2.Domain
@@ -10,21 +11,25 @@ namespace TrueType2.Domain
 
         public TTFRaw Raw { get; private set; }
 
-        private TTFCache _cache = new TTFCache();
+        private TTFVectorCache _cache = new TTFVectorCache();
 
         public TTF(string name, string path)
         {
             Name = name;
             Path = path;
-            if (File.Exists(path))
-                this.Raw = new TTFRaw(name, File.ReadAllBytes(path));
-            else
-                throw new Exception($"Font {path} not found");
+
+            this.Raw = 
+                TTFRawCache.Instance.ContainsKey(name) ? 
+                    TTFRawCache.Instance[name] 
+                    : File.Exists(path) ? 
+                        new TTFRaw(name, File.ReadAllBytes(path)).With(x => this.Raw = x).With(x => TTFRawCache.Instance.Add(name, x)) 
+                        : throw new Exception($"Font {path} not found");
 
 
             foreach (var c in "我")
             {
-                var vector = this.Raw.GetVector(c);
+                var index = Raw.GetGlyphIndex((int)c);
+                var vector = this.Raw.GetVector(index);
             }
 
             //var bitmap = vector.GetBitmap();
