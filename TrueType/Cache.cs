@@ -37,6 +37,7 @@ namespace TrueType
             {
                 var scanline = cache.ScanLine;
                 Array.Resize(ref scanline, len);
+                cache.ScanLine = scanline;
             }
 
             return cache.ScanLine;

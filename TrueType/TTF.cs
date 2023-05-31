@@ -30,7 +30,7 @@ namespace TrueType
         /// <summary>
         /// Offset of start of font
         /// </summary>
-        public int Offset { get; set; }
+        public int FontStart { get; set; }
         public int IndexMap { get; set; }
         public int IndexLocFormat { get; set; }
 
@@ -65,9 +65,9 @@ namespace TrueType
             var fontdescender = (float)vMetrics.descent / fontHeight;
             var fontLineHeight = (float)(fontHeight + lineGap) / fontHeight;
             
-            foreach(var c in "B")
+            foreach(var c in "我")
             {
-                var vertices = this.GetGlyph((uint)c, 256, 0);
+                var vertices = this.GetGlyph((uint)c, 24, 0);
                 
             }
         }
@@ -92,8 +92,8 @@ namespace TrueType
         internal static Dictionary<string, uint> LoadTables(this TTFRaw raw)
         {
             var span = raw.Span;
-            var tableCount = span.GetNumber<ushort>(raw.Offset + TTFC.TABLE_COUNT_OFFSET);
-            var tableDir = raw.Offset + TTFC.TABLE_DIR_OFFSET;
+            var tableCount = span.GetNumber<ushort>(raw.FontStart + TTFC.TABLE_COUNT_OFFSET);
+            var tableDir = raw.FontStart + TTFC.TABLE_DIR_OFFSET;
 
             var result = new Dictionary<string, uint>();
             for (int i = 0; i < tableCount; i++)
@@ -159,7 +159,7 @@ namespace TrueType
             var shift = new PointF();
         
             var index = raw.GetGlyphIndex((int)code);
-            var(advanceWidth, leftSideBearing, x0, y0, x1, y1) = raw.BuildGlyphBitmap(index, size, scale, shift);
+            var(advanceWidth, leftSideBearing, x0, y0, x1, y1) = raw.BuildGlyphBoxSettings(index, size, scale, shift);
 
             var renderSize = new Size(x1 - x0, y1 - y0);
             var glyphSize = new Size(renderSize.Width + pad * 2, renderSize.Height + pad * 2);
@@ -288,14 +288,16 @@ namespace TrueType
                     ++y;
                 }
 
-                Array.Copy(scanline, 0, Cache.Instance.Pixels, 240 + 0 * 480 + (j * 480), renderSize.Width);
+                Array.Copy(scanline, 0, Cache.Instance.Pixels, 0 + offset + 0 * 480 + (j * 480), renderSize.Width);
 
                 ++j;
 
             }
 
-
+            offset += renderSize.Width + 10;
         }
+
+        private static int offset = 0;
 
         static void stbtt__fill_active_edges(byte[] scanline, int len, ActiveEdge? edge, int max_weight)
         {
@@ -370,7 +372,7 @@ namespace TrueType
             float dxdy = (edge.P1.X - edge.P0.X) / (edge.P1.Y - edge.P0.Y);
             //STBTT_assert(e->y0 <= start_point);
             if (z == null)
-                return z;
+                throw new ArgumentException();
             // round dx down to avoid going too far
             if (dxdy < 0)
                 z.DX = -(int)Math.Floor(FIX * -dxdy);

@@ -324,14 +324,14 @@ public static class Glyph
             v.CenterY = (short)cy;
         }
 
-    public static (int advanceWidth, int leftSideBearing, int x0, int y0, int x1, int y1) BuildGlyphBitmap(this TTFRaw raw, int index, int size, PointF scale, PointF shift)
+    public static (int advanceWidth, int leftSideBearing, int x0, int y0, int x1, int y1) BuildGlyphBoxSettings(this TTFRaw raw, int index, int size, PointF scale, PointF shift)
     {
         var (advanceWidth, leftSideBearing) = raw.GetGlyphHMetrics(index);
-        var (x0, y0, x1, y1) = raw.GetGlyphBitmapBox(index, scale, shift);
+        var (x0, y0, x1, y1) = raw.GetGlyphBox(index, scale, shift);
         return (advanceWidth, leftSideBearing, x0, y0, x1, y1);
     }
 
-    private static (int x0, int y0, int x1, int y1) GetGlyphBitmapBox(this TTFRaw raw, int index, PointF scale, PointF shift)
+    private static (int x0, int y0, int x1, int y1) GetGlyphBox(this TTFRaw raw, int index, PointF scale, PointF shift)
     {
         var offset = raw.GetGlyphOffset(index);
         if (offset == 0)
