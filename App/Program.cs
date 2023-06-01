@@ -19,7 +19,7 @@ namespace App
                 var ttf = new TrueType2.Domain.TTF("sans", path);
                 foreach (var c in "我")
                 {
-                    ttf.GetGlyph(c);
+                    ttf.GetGlyph(c, 256, 0);
                 }
             }
 

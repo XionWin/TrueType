@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Drawing;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using TrueType2.Domain;
@@ -166,7 +167,7 @@ namespace TrueType2.Extension
             return default;
         }
 
-        private static float GetPixelHeightScale(this TTFRaw raw, float height)
+        internal static float GetPixelHeightScale(this TTFRaw raw, float height)
         {
             int fheight = raw.GetNumber<short>(raw.Table.Hhea + 4) - raw.GetNumber<short>(raw.Table.Hhea + 6);
             return (float)height / fheight;
@@ -178,6 +179,49 @@ namespace TrueType2.Extension
             var span = raw.Span.Slice(position, Marshal.SizeOf<T>()).ToArray().AsSpan();
             span.Reverse();
             return MemoryMarshal.Read<T>(span);
+        }
+
+        public static (int advanceWidth, int leftSideBearing, int x0, int y0, int x1, int y1) BuildGlyphBoxSettings(this TTFRaw raw, int index, int size, PointF scale, PointF shift)
+        {
+            var (advanceWidth, leftSideBearing) = raw.GetGlyphHMetrics(index);
+            var (x0, y0, x1, y1) = raw.GetGlyphBox(index, scale, shift);
+            return (advanceWidth, leftSideBearing, x0, y0, x1, y1);
+        }
+
+        private static (int x0, int y0, int x1, int y1) GetGlyphBox(this TTFRaw raw, int index, PointF scale, PointF shift)
+        {
+            var offset = raw.GetGlyphOffset(index);
+            if (offset == 0)
+                throw new Exception("Not found");
+
+            var x0 = (int)raw.GetNumber<short>(offset + 2);
+            var y0 = (int)raw.GetNumber<short>(offset + 4);
+            var x1 = (int)raw.GetNumber<short>(offset + 6);
+            var y1 = (int)raw.GetNumber<short>(offset + 8);
+
+
+            var ix0 = (int)Math.Floor(x0 * scale.X + shift.X);
+            var iy0 = (int)-Math.Ceiling(y1 * scale.Y + shift.Y);
+            var ix1 = (int)Math.Ceiling(x1 * scale.X + shift.X);
+            var iy1 = (int)-Math.Floor(y0 * scale.Y + shift.Y);
+            return (ix0, iy0, ix1, iy1);
+        }
+
+        private static (short advanceWidth, short leftSideBearing) GetGlyphHMetrics(this TTFRaw raw, int index)
+        {
+            var numOfLongHorMetrics = raw.GetNumber<ushort>(raw.Table.Hhea + 34);
+            if (index < numOfLongHorMetrics)
+            {
+                var advanceWidth = raw.GetNumber<short>(raw.Table.Hmtx + 4 * index);
+                var leftSideBearing = raw.GetNumber<short>(raw.Table.Hmtx + 4 * index + 2);
+                return (advanceWidth, leftSideBearing);
+            }
+            else
+            {
+                var advanceWidth = raw.GetNumber<short>(raw.Table.Hmtx + 4 * (numOfLongHorMetrics - 1));
+                var leftSideBearing = raw.GetNumber<short>(raw.Table.Hmtx + 4 * numOfLongHorMetrics + 2 * (index - numOfLongHorMetrics));
+                return (advanceWidth, leftSideBearing);
+            }
         }
     }
 }

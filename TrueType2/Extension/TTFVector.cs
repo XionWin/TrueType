@@ -34,7 +34,7 @@ namespace TrueType2.Extension
             var vertices = new TTFVertex[m];
             // first load flags
             var flagcount = 0;
-            var points = raw.Raw;
+            var points = raw.Data;
             byte flags = 0;
             for (var i = 0; i < n; ++i)
             {
@@ -174,7 +174,7 @@ namespace TrueType2.Extension
         private static TTFVertex[] GetCompositeShape(this TTFRaw raw, int offset, int numberOfContours, int index)
         {
             int more = 1;
-            byte[] compositeData = raw.Raw;
+            byte[] compositeData = raw.Data;
             int iCompositeData = offset + 10;
             var num_vertices = 0;
             TTFVertex[]? vertices = null;

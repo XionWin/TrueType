@@ -7,9 +7,9 @@ namespace TrueType2.Domain
     {
         public string Name { get; set; }
 
-        private byte[] _raw;
-        public byte[] Raw => _raw;
-        public ReadOnlySpan<byte> Span => _raw;
+        private byte[] _data;
+        public byte[] Data => _data;
+        public ReadOnlySpan<byte> Span => _data;
 
         /// <summary>
         /// Offset of start of font
@@ -25,20 +25,13 @@ namespace TrueType2.Domain
         public TTFRaw(string name, byte[] raw)
         {
             Name = name;
-            _raw = raw;
+            _data = raw;
             _rawTables = new TTFRawTable(this.LoadTables());
 
             var (indexMap, indexLocFormat) = this.LoadCMap();
             this.IndexMap = indexMap;
             this.IndexLocFormat = indexLocFormat;
             this.GlyphCount = this.GetNumber<ushort>(this.Table.Maxp + TTFDefine.TABLE_MAXP_GLYPHS_OFFSET);
-
-            var lineGap = 0;
-            var vMetrics = this.GetFontVMetrics();
-            var fontHeight = vMetrics.ascent - vMetrics.descent;
-            var fontascender = (float)vMetrics.ascent / fontHeight;
-            var fontdescender = (float)vMetrics.descent / fontHeight;
-            var fontLineHeight = (float)(fontHeight + lineGap) / fontHeight;
 
         }
     }
