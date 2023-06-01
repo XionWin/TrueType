@@ -15,7 +15,13 @@ namespace App
             var font = new Font("sans", path);
 
             if (File.Exists(path))
-                new TrueType2.Domain.TTF("sans", path);
+            {
+                var ttf = new TrueType2.Domain.TTF("sans", path);
+                foreach (var c in "我")
+                {
+                    ttf.GetGlyph(c);
+                }
+            }
 
             System.Diagnostics.Debug.WriteLine($"TTF Tables Count: {font.TTF._rawTables.Count()}");
             font.TTF._rawTables.ToList().ForEach(x => System.Diagnostics.Debug.WriteLine($"{x.Key}: {x.Value}"));

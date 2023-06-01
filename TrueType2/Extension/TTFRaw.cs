@@ -25,29 +25,21 @@ namespace TrueType2.Extension
 
         internal static (int indexMap, int indexLocFormat) LoadCMap(this TTFRaw raw)
         {
-            var cmap = raw.Table.Cmap;
-            var cmapTables = raw.LoadTableValue<ushort>(cmap, TTFDefine.TABLE_CMAP_TABLES_OFFSET);
+            var cmapTables = raw.GetNumber<ushort>(raw.Table.Cmap + TTFDefine.TABLE_CMAP_TABLES_OFFSET);
 
-            var encoding_record = Enumerable.Range(0, cmapTables).Select(x => (int)(cmap + 4 + 8 * x)).First(x =>
+            var encoding_record = Enumerable.Range(0, cmapTables).Select(x => (int)(raw.Table.Cmap + 4 + 8 * x)).First(x =>
                 (STBTT_PLATFORM_ID)raw.GetNumber<ushort>(x) == STBTT_PLATFORM_ID.STBTT_PLATFORM_ID_MICROSOFT ?
                         new[] { STBTT_PLATFORM_ID_MICROSOFT.STBTT_MS_EID_UNICODE_FULL, STBTT_PLATFORM_ID_MICROSOFT.STBTT_MS_EID_UNICODE_BMP }.Contains((STBTT_PLATFORM_ID_MICROSOFT)raw.GetNumber<ushort>(x + 2)) :
                         false
             );
 
-            var indexMap = cmap + raw.GetNumber<uint>(encoding_record + 4);
+            var indexMap = raw.Table.Cmap + raw.GetNumber<uint>(encoding_record + 4);
             var indexLocFormat = raw.GetNumber<ushort>(raw.Table.Head + 50);
             return ((int)indexMap, indexLocFormat);
-        }
-        internal static T LoadTableValue<T>(this TTFRaw raw, int table, int propOffset)
-            where T : struct, INumber<T>
-        {
-            var propValue = raw.GetNumber<T>(table + propOffset);
-            return propValue;
         }
 
         internal static (int ascent, int descent, int lineGap) GetFontVMetrics(this TTFRaw raw)
         {
-
             return (raw.GetNumber<short>(raw.Table.Hhea + 4), raw.GetNumber<short>(raw.Table.Hhea + 6), raw.GetNumber<short>(raw.Table.Hhea + 8));
         }
 

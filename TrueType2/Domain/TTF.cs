@@ -20,14 +20,11 @@ namespace TrueType2.Domain
                 TTFRawCache.Instance.ContainsKey(name) ?
                     TTFRawCache.Instance[name]
                     : new TTFVectorCache(new TTFRaw(name, File.ReadAllBytes(path))).With(x => TTFRawCache.Instance.Add(name, x));
+        }
 
-
-            foreach (var c in "我")
-            {
-                var v = this._cache.TryGet(c);
-
-            }
-
+        public void GetGlyph(char c)
+        {
+            var v = this._cache!.TryGet(c);
         }
 
         public void Dispose()

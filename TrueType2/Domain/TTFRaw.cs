@@ -31,8 +31,7 @@ namespace TrueType2.Domain
             var (indexMap, indexLocFormat) = this.LoadCMap();
             this.IndexMap = indexMap;
             this.IndexLocFormat = indexLocFormat;
-            this.GlyphCount = this.LoadTableValue<ushort>(this.Table.Maxp, TTFDefine.TABLE_MAXP_GLYPHS_OFFSET);
-
+            this.GlyphCount = this.GetNumber<ushort>(this.Table.Maxp + TTFDefine.TABLE_MAXP_GLYPHS_OFFSET);
 
             var lineGap = 0;
             var vMetrics = this.GetFontVMetrics();
@@ -40,7 +39,6 @@ namespace TrueType2.Domain
             var fontascender = (float)vMetrics.ascent / fontHeight;
             var fontdescender = (float)vMetrics.descent / fontHeight;
             var fontLineHeight = (float)(fontHeight + lineGap) / fontHeight;
-
 
         }
     }
