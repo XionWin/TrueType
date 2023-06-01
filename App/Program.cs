@@ -17,9 +17,11 @@ namespace App
             if (File.Exists(path))
             {
                 var ttf = new TrueType2.Domain.TTF("sans", path);
-                foreach (var c in "我")
+
+                var fontSize = 24;
+                foreach (var c in "我們試了下，終於渲染出來了")
                 {
-                    ttf.GetGlyph(c, 256, 0);
+                    ttf.GetGlyph(c, fontSize, 0);
                 }
             }
 
