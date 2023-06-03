@@ -13,7 +13,5 @@ namespace TrueType2.Domain
             Vertices = vertices;
         }
 
-
-
     }
 }

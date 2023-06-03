@@ -12,7 +12,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TrueType2.Domain.Cache.Bitmap;
+using TrueType2.Domain.Cache.Pixel;
 
 namespace App
 {
@@ -81,7 +81,7 @@ namespace App
 
             //_texture = new Texture(TextureUnit.Texture0, TextureMinFilter.Nearest).With(x => x.LoadRaw(TrueType.Cache.Instance.Pixels, w, h, PixelFormat.Alpha, PixelInternalFormat.Rgba));
 
-            var canvas = TTFBitmapCache.Instance.Canvas;
+            var canvas = BitmapCache.Instance.Canvas;
 
             _texture = new Texture(TextureUnit.Texture0, TextureMinFilter.Nearest).With(x => x.LoadRaw(canvas.Pixels, canvas.Width, canvas.Height, PixelFormat.Alpha, PixelInternalFormat.Rgba));
 

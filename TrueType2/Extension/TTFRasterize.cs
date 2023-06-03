@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TrueType2.Domain;
-using TrueType2.Domain.Cache.Bitmap;
+using TrueType2.Domain.Cache.Pixel;
 using TrueType2.Mode;
 
 namespace TrueType2.Extension
@@ -70,7 +70,7 @@ namespace TrueType2.Extension
 
             // int y, j = 0, eIndex = 0;
             int max_weight = (255 / vsubsample);        // weight per vertical scanline
-            var scanline = TTFBitmapCache.Instance.RequestScanline(renderSize.Width);
+            var scanline = BitmapCache.Instance.Scanline.Request(renderSize.Width);
 
 
             var y = off.Y * vsubsample;
@@ -165,7 +165,7 @@ namespace TrueType2.Extension
                     ++y;
                 }
 
-                var canvas = TTFBitmapCache.Instance.Canvas;
+                var canvas = BitmapCache.Instance.Canvas;
 
                 if(offset + renderSize.Width > canvas.Width)
                 {

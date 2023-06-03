@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace TrueType2.Domain.Cache.Vector
 {
-    internal class TTFCache : Dictionary<string, TTFRawCache>
+    internal class Cache : Dictionary<string, FontCache>
     {
 
-        private static TTFCache _Instance = new TTFCache();
-        public static TTFCache Instance = _Instance;
+        private static Cache _Instance = new Cache();
+        public static Cache Instance = _Instance;
 
     }
 }

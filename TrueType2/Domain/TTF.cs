@@ -9,7 +9,7 @@ namespace TrueType2.Domain
         public string Name { get; set; }
         public string Path { get; set; }
 
-        private TTFCache _cache = TTFCache.Instance;
+        private Cache.Vector.Cache _cache = Cache.Vector.Cache.Instance;
         private TTFRaw _raw;
 
         public TTF(string name, string path)
@@ -18,7 +18,7 @@ namespace TrueType2.Domain
             Path = path;
 
             if (_cache.ContainsKey(name) is false)
-                _cache.Add(name, new TTFRawCache(new TTFRaw(name, File.ReadAllBytes(path))));
+                _cache.Add(name, new FontCache(new TTFRaw(name, File.ReadAllBytes(path))));
 
             this._raw = _cache[name].Raw is TTFRaw ttfRaw ? ttfRaw : throw new ArgumentException();
 

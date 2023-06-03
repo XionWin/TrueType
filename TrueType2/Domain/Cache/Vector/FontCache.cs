@@ -4,10 +4,10 @@ using TrueType2.Extension;
 
 namespace TrueType2.Domain.Cache.Vector
 {
-    internal class TTFRawCache : Dictionary<int, TTFVector>
+    internal class FontCache : Dictionary<int, TTFVector>
     {
         public TTFRaw Raw { get; private set; }
-        public TTFRawCache(TTFRaw raw)
+        public FontCache(TTFRaw raw)
         {
             Raw = raw;
         }
