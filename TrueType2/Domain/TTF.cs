@@ -1,6 +1,6 @@
-﻿using System.Drawing;
-using TrueType2.Domain.Support;
+﻿using TrueType2.Domain.Cache.Vector;
 using TrueType2.Extension;
+using TrueType2.Mode;
 
 namespace TrueType2.Domain
 {
@@ -37,7 +37,7 @@ namespace TrueType2.Domain
 
 
             // Find code point and size.
-            var h = TTFExtension.HashInt(c) & (TTFDefine.FONS_HASH_LUT_SIZE - 1);
+            var h = TTFExtension.HashInt(c) & (Consts.FONS_HASH_LUT_SIZE - 1);
 
             if (size < 2)
                 throw new Exception("Unsupported size");

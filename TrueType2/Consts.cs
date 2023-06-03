@@ -1,7 +1,7 @@
-﻿namespace TrueType2.Domain.Support
+﻿namespace TrueType2
 {
 
-    public static class TTFDefine
+    public static class Consts
     {
         public const int TABLE_COUNT_OFFSET = 4;
         public const int TABLE_DIR_OFFSET = 12;

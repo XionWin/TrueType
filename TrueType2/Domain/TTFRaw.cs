@@ -1,5 +1,4 @@
-﻿using TrueType2.Domain.Support;
-using TrueType2.Extension;
+﻿using TrueType2.Extension;
 
 namespace TrueType2.Domain
 {
@@ -31,7 +30,7 @@ namespace TrueType2.Domain
             var (indexMap, indexLocFormat) = this.LoadCMap();
             this.IndexMap = indexMap;
             this.IndexLocFormat = indexLocFormat;
-            this.GlyphCount = this.GetNumber<ushort>(this.Table.Maxp + TTFDefine.TABLE_MAXP_GLYPHS_OFFSET);
+            this.GlyphCount = this.GetNumber<ushort>(this.Table.Maxp + Consts.TABLE_MAXP_GLYPHS_OFFSET);
 
         }
     }

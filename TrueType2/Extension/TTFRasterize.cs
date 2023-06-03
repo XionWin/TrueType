@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TrueType2.Domain;
-using TrueType2.Domain.Support;
+using TrueType2.Domain.Cache.Bitmap;
+using TrueType2.Mode;
 
 namespace TrueType2.Extension
 {
@@ -63,6 +63,7 @@ namespace TrueType2.Extension
         }
 
         private static int offset = 0;
+        private static int offsetH = 0;
         static void stbtt__rasterize_sorted_edges(this Edge[] edges, Size renderSize, int vsubsample, Point off)
         {
             var activeIsNext = new ActiveEdge();
@@ -165,7 +166,14 @@ namespace TrueType2.Extension
                 }
 
                 var canvas = TTFBitmapCache.Instance.Canvas;
-                Array.Copy(scanline, 0, canvas.Pixels, 0 + offset + (j * canvas.Width), renderSize.Width);
+
+                if(offset + renderSize.Width > canvas.Width)
+                {
+                    offset = 0;
+                    offsetH += renderSize.Height + 15;
+                }
+
+                Array.Copy(scanline, 0, canvas.Pixels, 0 + offset + offsetH * canvas.Height + (j * canvas.Width), renderSize.Width);
 
                 ++j;
 

@@ -12,6 +12,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TrueType2.Domain.Cache.Bitmap;
 
 namespace App
 {
@@ -22,10 +23,14 @@ namespace App
 
         private readonly IVertex2[] _vertices = new IVertex2[]
         {
-            new ColorTextureVertex2(new Vector2(16f, 16f), new Vector4(1, 0, 1, 1), new Vector2(0.0f, 0.0f)),
-            new ColorTextureVertex2(new Vector2(496f, 16f), new Vector4(1, 0, 0, 1), new Vector2(1f, 0.0f)),
-            new ColorTextureVertex2(new Vector2(496f, 496f), new Vector4(0, 1, 0, 1), new Vector2(1f, 1f)),
-            new ColorTextureVertex2(new Vector2(16f, 496f), new Vector4(0, 0, 1, 1), new Vector2(0.0f, 1f)),
+            //new ColorTextureVertex2(new Vector2(16f, 16f), new Vector4(1, 0, 1, 1), new Vector2(0.0f, 0.0f)),
+            //new ColorTextureVertex2(new Vector2(496f, 16f), new Vector4(1, 0, 0, 1), new Vector2(1f, 0.0f)),
+            //new ColorTextureVertex2(new Vector2(496f, 496f), new Vector4(0, 1, 0, 1), new Vector2(1f, 1f)),
+            //new ColorTextureVertex2(new Vector2(16f, 496f), new Vector4(0, 0, 1, 1), new Vector2(0.0f, 1f)),
+            new ColorTextureVertex2(new Vector2(16f, 16f), new Vector4(1, 1, 1, 1), new Vector2(0.0f, 0.0f)),
+            new ColorTextureVertex2(new Vector2(496f, 16f), new Vector4(1, 1, 1, 1), new Vector2(1f, 0.0f)),
+            new ColorTextureVertex2(new Vector2(496f, 496f), new Vector4(1, 1, 1, 1), new Vector2(1f, 1f)),
+            new ColorTextureVertex2(new Vector2(16f, 496f), new Vector4(1, 1, 1, 1), new Vector2(0.0f, 1f)),
         };
 
         private readonly uint[] _indices =
@@ -76,7 +81,7 @@ namespace App
 
             //_texture = new Texture(TextureUnit.Texture0, TextureMinFilter.Nearest).With(x => x.LoadRaw(TrueType.Cache.Instance.Pixels, w, h, PixelFormat.Alpha, PixelInternalFormat.Rgba));
 
-            var canvas = TrueType2.Domain.Support.TTFBitmapCache.Instance.Canvas;
+            var canvas = TTFBitmapCache.Instance.Canvas;
 
             _texture = new Texture(TextureUnit.Texture0, TextureMinFilter.Nearest).With(x => x.LoadRaw(canvas.Pixels, canvas.Width, canvas.Height, PixelFormat.Alpha, PixelInternalFormat.Rgba));
 

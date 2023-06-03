@@ -1,9 +1,8 @@
-﻿using System.Drawing;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using TrueType2.Domain;
-using TrueType2.Domain.Support;
+using TrueType2.Mode;
 
 namespace TrueType2.Extension
 {
@@ -11,22 +10,22 @@ namespace TrueType2.Extension
     {
         internal static Dictionary<string, uint> LoadTables(this TTFRaw raw)
         {
-            var tableCount = raw.GetNumber<ushort>(raw.FontStart + TTFDefine.TABLE_COUNT_OFFSET);
-            var tableDir = raw.FontStart + TTFDefine.TABLE_DIR_OFFSET;
+            var tableCount = raw.GetNumber<ushort>(raw.FontStart + Consts.TABLE_COUNT_OFFSET);
+            var tableDir = raw.FontStart + Consts.TABLE_DIR_OFFSET;
 
             var result = new Dictionary<string, uint>();
             for (int i = 0; i < tableCount; i++)
             {
-                var location = tableDir + TTFDefine.TABLE_DIR_STEP_LEN * i;
-                var nameData = raw.Span.Slice(location, TTFDefine.TABLE_DIR_NAME_LEN);
-                result.Add(Encoding.Default.GetString(nameData), raw.GetNumber<uint>(location + TTFDefine.TABLE_DIR_DATA_OFFSET));
+                var location = tableDir + Consts.TABLE_DIR_STEP_LEN * i;
+                var nameData = raw.Span.Slice(location, Consts.TABLE_DIR_NAME_LEN);
+                result.Add(Encoding.Default.GetString(nameData), raw.GetNumber<uint>(location + Consts.TABLE_DIR_DATA_OFFSET));
             }
             return result;
         }
 
         internal static (int indexMap, int indexLocFormat) LoadCMap(this TTFRaw raw)
         {
-            var cmapTables = raw.GetNumber<ushort>(raw.Table.Cmap + TTFDefine.TABLE_CMAP_TABLES_OFFSET);
+            var cmapTables = raw.GetNumber<ushort>(raw.Table.Cmap + Consts.TABLE_CMAP_TABLES_OFFSET);
 
             var encoding_record = Enumerable.Range(0, cmapTables).Select(x => (int)(raw.Table.Cmap + 4 + 8 * x)).First(x =>
                 (STBTT_PLATFORM_ID)raw.GetNumber<ushort>(x) == STBTT_PLATFORM_ID.STBTT_PLATFORM_ID_MICROSOFT ?

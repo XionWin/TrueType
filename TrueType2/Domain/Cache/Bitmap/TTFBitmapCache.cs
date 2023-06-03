@@ -1,4 +1,4 @@
-﻿namespace TrueType2.Domain.Support
+﻿namespace TrueType2.Domain.Cache.Bitmap
 {
     public class TTFBitmapCache
     {
@@ -12,18 +12,18 @@
 
         public byte[] RequestScanline(int len)
         {
-            if (this.Scanline is null)
+            if (Scanline is null)
             {
-                this.Scanline = new byte[len];
+                Scanline = new byte[len];
             }
 
-            if (this.Scanline.Length < len)
+            if (Scanline.Length < len)
             {
-                var scanline = this.Scanline;
+                var scanline = Scanline;
                 Array.Resize(ref scanline, len);
-                this.Scanline = scanline;
+                Scanline = scanline;
             }
-            return this.Scanline;
+            return Scanline;
         }
     }
 }

@@ -2,7 +2,7 @@
 using System;
 using TrueType2.Extension;
 
-namespace TrueType2.Domain.Support
+namespace TrueType2.Domain.Cache.Vector
 {
     internal class TTFRawCache : Dictionary<int, TTFVector>
     {
@@ -13,9 +13,9 @@ namespace TrueType2.Domain.Support
         }
 
         public TTFVector TryGet(char c) =>
-            this.Raw.GetGlyphIndex((int)c) is var index && this.ContainsKey(index) ?
+            Raw.GetGlyphIndex(c) is var index && ContainsKey(index) ?
                 this[index]
-                : this.Raw.GetVector(index).With(x => this.Add(index, x));
+                : Raw.GetVector(index).With(x => Add(index, x));
     }
 
 }

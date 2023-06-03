@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TrueType2.Domain.Support
+namespace TrueType2.Domain.Cache.Vector
 {
     internal class TTFCache : Dictionary<string, TTFRawCache>
     {

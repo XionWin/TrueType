@@ -1,13 +1,14 @@
-﻿using TrueType2.Domain.Support;
+﻿using TrueType2.Domain.Cache;
 using TrueType2.Extension;
+using TrueType2.Mode;
 
 namespace TrueType2.Domain
 {
     public class TTFVector
     {
-        public TTFVertex[] Vertices { get; set; }
+        public Vertex[] Vertices { get; set; }
 
-        public TTFVector(TTFVertex[] vertices) 
+        public TTFVector(Vertex[] vertices) 
         {
             Vertices = vertices;
         }

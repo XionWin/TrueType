@@ -1,4 +1,4 @@
-﻿namespace TrueType2.Domain
+﻿namespace TrueType2.Mode
 {
     public enum FONSerrorCode
     {

@@ -1,7 +1,9 @@
-﻿namespace TrueType2.Domain.Support
+﻿namespace TrueType2.Domain.Cache.Bitmap
 {
     public class MonoCanvas
     {
+
+
         public int Width { get; init; }
         public int Height { get; init; }
 

@@ -1,4 +1,4 @@
-﻿namespace TrueType2.Domain
+﻿namespace TrueType2.Mode
 {
     public enum VertexType
     {
@@ -7,7 +7,7 @@
         CurveTo
     }
 
-    public struct TTFVertex
+    public struct Vertex
     {
         public short CenterX { get; set; }
         public short CenterY { get; set; }

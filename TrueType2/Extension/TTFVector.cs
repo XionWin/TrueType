@@ -1,4 +1,5 @@
 ﻿using TrueType2.Domain;
+using TrueType2.Mode;
 
 namespace TrueType2.Extension
 {
@@ -7,7 +8,7 @@ namespace TrueType2.Extension
         public static TTFVector GetVector(this TTFRaw raw, int index) =>
             new TTFVector(raw.GetShape(index));
 
-        public static TTFVertex[] GetShape(this TTFRaw raw, int index)
+        public static Vertex[] GetShape(this TTFRaw raw, int index)
         {
             var offset = raw.GetGlyphOffset(index);
             short numberOfContours = raw.GetNumber<short>(offset);
@@ -20,7 +21,7 @@ namespace TrueType2.Extension
             };
         }
 
-        private static TTFVertex[] GetSimpleShape(this TTFRaw raw, int offset, int numberOfContours, int index)
+        private static Vertex[] GetSimpleShape(this TTFRaw raw, int offset, int numberOfContours, int index)
         {
             int iData = offset + 10;
 
@@ -31,7 +32,7 @@ namespace TrueType2.Extension
             var n = 1 + raw.GetNumber<ushort>(numberOfContours * 2 - 2 + iData);
             var off = 2 * numberOfContours;
             var m = n + off;
-            var vertices = new TTFVertex[m];
+            var vertices = new Vertex[m];
             // first load flags
             var flagcount = 0;
             var points = raw.Data;
@@ -171,19 +172,19 @@ namespace TrueType2.Extension
             return vertices.Take(num_vertices).ToArray();
         }
 
-        private static TTFVertex[] GetCompositeShape(this TTFRaw raw, int offset, int numberOfContours, int index)
+        private static Vertex[] GetCompositeShape(this TTFRaw raw, int offset, int numberOfContours, int index)
         {
             int more = 1;
             byte[] compositeData = raw.Data;
             int iCompositeData = offset + 10;
             var num_vertices = 0;
-            TTFVertex[]? vertices = null;
+            Vertex[]? vertices = null;
 
             while (more != 0)
             {
                 ushort flags, gidx;
                 int comp_num_verts = 0, i;
-                TTFVertex[]? comp_verts = null, tmp = null;
+                Vertex[]? comp_verts = null, tmp = null;
                 float[] mtx = { 1, 0, 0, 1, 0, 0 };
                 float m, n;
 
@@ -252,7 +253,7 @@ namespace TrueType2.Extension
                     // Transform vertices.
                     for (i = 0; i < comp_num_verts; ++i)
                     {
-                        TTFVertex v = comp_verts![i];
+                        Vertex v = comp_verts![i];
                         short x, y; // stbtt_vertex_type = short;
                         x = v.X;
                         y = v.Y;
@@ -266,7 +267,7 @@ namespace TrueType2.Extension
 
                     // Append vertices.
                     //tmp = (stbtt_vertex*)STBTT_malloc((num_vertices+comp_num_verts)*sizeof(stbtt_vertex), info->userdata);
-                    tmp = new TTFVertex[num_vertices + comp_num_verts];
+                    tmp = new Vertex[num_vertices + comp_num_verts];
                     if (tmp == null)
                     {
                         //if (vertices) STBTT_free(vertices, info->userdata);
@@ -291,7 +292,7 @@ namespace TrueType2.Extension
         }
 
 
-        private static int VertexsCloseShape(TTFVertex[] vertices, int num_vertices, int was_off, int start_off,
+        private static int VertexsCloseShape(Vertex[] vertices, int num_vertices, int was_off, int start_off,
                                     int sx, int sy, int scx, int scy, int cx, int cy)
         {
             if (start_off != 0)
@@ -314,7 +315,7 @@ namespace TrueType2.Extension
             return num_vertices;
         }
 
-        private static void SetVertex(ref TTFVertex v, int numVert, VertexType type, int x, int y, int cx, int cy)
+        private static void SetVertex(ref Vertex v, int numVert, VertexType type, int x, int y, int cx, int cy)
         {
             if (numVert == 15)
             {

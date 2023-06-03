@@ -11,15 +11,15 @@ namespace App
         {
             System.Diagnostics.Debug.WriteLine("Hello, World!");
 
-            var path = @"Resources/Fonts/Zpix.ttf";
+            var path = @"Resources/Fonts/PixelMix.ttf";
             var font = new Font("sans", path);
 
             if (File.Exists(path))
             {
-                var ttf = new TrueType2.Domain.TTF("sans", path);
+                var ttf = new TrueType2.Domain.TTF("PixelMix", path);
 
-                var fontSize = 24;
-                foreach (var c in "我們試了下，終於渲染出來了")
+                var fontSize = 48;
+                foreach (var c in "Hi,GoodMorning!")
                 {
                     ttf.GetGlyph(c, fontSize, 0);
                 }

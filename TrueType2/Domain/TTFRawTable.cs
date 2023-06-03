@@ -1,4 +1,4 @@
-﻿namespace TrueType2.Domain.Support
+﻿namespace TrueType2.Domain
 {
     public class TTFRawTable
     {
