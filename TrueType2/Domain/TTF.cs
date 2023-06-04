@@ -62,7 +62,7 @@ namespace TrueType2.Domain
             //AtlasAddRect(Atlas.Instance, this._raw, glyphSize);
 
 
-            vector.Rasterize(renderSize, scale, shift, off);
+            var bitmap = vector.Rasterize(renderSize, scale, shift, off);
         }
 
         public void Dispose()

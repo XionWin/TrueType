@@ -18,7 +18,7 @@ namespace App
             {
                 var ttf = new TrueType2.Domain.TTF("PixelMix", path);
 
-                var fontSize = 48;
+                var fontSize = 64;
                 foreach (var c in "Hi,GoodMorning!")
                 {
                     ttf.GetGlyph(c, fontSize, 0);

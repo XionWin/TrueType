@@ -10,9 +10,9 @@ namespace TrueType2.Domain
     public class TTFBitmap
     {
         public MonoCanvas Canvas { get; init; }
-        public RectF Rectangle { get; init; }
+        public Rect Rectangle { get; init; }
 
-        public TTFBitmap(MonoCanvas canvas, RectF rectangle)
+        public TTFBitmap(MonoCanvas canvas, Rect rectangle)
         {
             Canvas = canvas;
             Rectangle = rectangle;

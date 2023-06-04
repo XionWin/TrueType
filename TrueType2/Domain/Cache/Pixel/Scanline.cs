@@ -26,4 +26,5 @@ namespace TrueType2.Domain.Cache.Pixel
             return Data;
         }
     }
+
 }

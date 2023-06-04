@@ -86,19 +86,26 @@ namespace App
             _texture = new Texture(TextureUnit.Texture0, TextureMinFilter.Nearest).With(x => x.LoadRaw(canvas.Pixels, canvas.Width, canvas.Height, PixelFormat.Alpha, PixelInternalFormat.Rgba));
 
 
-            //var subData = new byte[] { 
-            //    0xFF, 0x00, 0x00, 0xFF
-            //};
+            var subData = new byte[] {
+                0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
+                0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
+                0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
+                0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
+                0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
+                0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
+                0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
+                0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
+            };
 
-            //x = 0;
-            //y = 0;
-            //w = 2;
-            //h = 2;
+            var x = 0;
+            var y = 0;
+            w = 8;
+            h = 8;
 
-            //GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
+            GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
             //GL.PixelStore(PixelStoreParameter.UnpackSkipPixels, x);
             //GL.PixelStore(PixelStoreParameter.UnpackSkipRows, y);
-            //GL.TexSubImage2D(TextureTarget.Texture2D, 0, x, y, w, h, PixelFormat.Alpha, PixelType.UnsignedByte, subData);
+            GL.TexSubImage2D(TextureTarget.Texture2D, 0, x, y, w, h, PixelFormat.Alpha, PixelType.UnsignedByte, subData);
 
 
             this._uniformViewPort = GL.GetUniformLocation(this.Shader.ProgramHandle, "aViewport");
