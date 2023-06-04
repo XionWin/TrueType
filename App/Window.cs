@@ -75,15 +75,17 @@ namespace App
 
 
 
-            var w = 480;
-            var h = 480;
             GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
 
             //_texture = new Texture(TextureUnit.Texture0, TextureMinFilter.Nearest).With(x => x.LoadRaw(TrueType.Cache.Instance.Pixels, w, h, PixelFormat.Alpha, PixelInternalFormat.Rgba));
 
-            var canvas = BitmapCache.Instance.Canvas;
+            var fontBitmapCache = BitmapCache.Instance.First().Value;
 
-            _texture = new Texture(TextureUnit.Texture0, TextureMinFilter.Nearest).With(x => x.LoadRaw(canvas.Pixels, canvas.Width, canvas.Height, PixelFormat.Alpha, PixelInternalFormat.Rgba));
+            var canvases = BitmapCache.Instance.Values.SelectMany(x => x.Values).ToArray();
+
+            var canvas = canvases[DateTime.Now.Second % canvases.Count()];
+
+            _texture = new Texture(TextureUnit.Texture0, TextureMinFilter.Nearest).With(x => x.LoadRaw(canvas.Pixels, canvas.Size.Width, canvas.Size.Height, PixelFormat.Alpha, PixelInternalFormat.Rgba));
 
 
             var subData = new byte[] {
@@ -99,8 +101,8 @@ namespace App
 
             var x = 0;
             var y = 0;
-            w = 8;
-            h = 8;
+            var w = 8;
+            var h = 8;
 
             GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
             //GL.PixelStore(PixelStoreParameter.UnpackSkipPixels, x);

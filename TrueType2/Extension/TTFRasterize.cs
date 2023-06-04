@@ -49,7 +49,7 @@ namespace TrueType2.Extension
 
     internal static class TTFRasterize
     {
-        internal static TTFBitmap Rasterize(this TTFVector vector, Size renderSize, PointF scale, PointF shift, Point off)
+        internal static TTFBitmap Rasterize(this TTFVector vector, MonoCanvas canvas, Size renderSize, PointF scale, PointF shift, Point off)
         {
             var flatness_in_pixels = 0.35f;
             int vsubsample = renderSize.Height < 8 ? 15 : 5;
@@ -59,15 +59,12 @@ namespace TrueType2.Extension
 
             var edges = windings!.stbtt__rasterize(vsubsample, scale, shift, off, true);
 
-
-            var canvas = BitmapCache.Instance.Canvas;
+            var location = canvas.Location;
             edges!.stbtt__rasterize_sorted_edges(canvas, renderSize, vsubsample, off);
 
-            return new TTFBitmap(canvas, new Rect(offset, offsetH, renderSize.Width, renderSize.Height));
+            return new TTFBitmap(canvas, new Rect(location.X, location.Y, renderSize.Width, renderSize.Height));
         }
 
-        private static int offset = 0;
-        private static int offsetH = 0;
         static void stbtt__rasterize_sorted_edges(this Edge[] edges, MonoCanvas canvas, Size renderSize, int vsubsample, Point off)
         {
             var activeIsNext = new ActiveEdge();
@@ -172,22 +169,15 @@ namespace TrueType2.Extension
                 }
 
 
-                if(offset + renderSize.Width > canvas.Width)
-                {
-                    offset = 0;
-                    offsetH += renderSize.Height + 15;
-                }
 
                 //Array.Copy(scanline, 0, canvas.Pixels, 0 + offset + offsetH * canvas.Height + (j * canvas.Width), renderSize.Width);
 
                 canvas.DrawScanline(BitmapCache.Instance.Scanline, lineIndex, renderSize);
 
-
                 ++lineIndex;
 
             }
 
-            offset += renderSize.Width + 10;
             canvas.UpdateLocation(renderSize);
         }
 

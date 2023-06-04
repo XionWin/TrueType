@@ -23,6 +23,11 @@ namespace App
                 {
                     ttf.GetGlyph(c, fontSize, 0);
                 }
+                fontSize = 32;
+                foreach (var c in "Hi,GoodMorning!")
+                {
+                    ttf.GetGlyph(c, fontSize, 0);
+                }
             }
 
             System.Diagnostics.Debug.WriteLine($"TTF Tables Count: {font.TTF._rawTables.Count()}");

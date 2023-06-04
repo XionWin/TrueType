@@ -6,6 +6,7 @@ namespace TrueType2.Domain.Cache.Vector
 {
     internal class FontCache : Dictionary<int, TTFVector>
     {
+        public string FontName => this.Raw.Name;
         public TTFRaw Raw { get; private set; }
         public FontCache(TTFRaw raw)
         {

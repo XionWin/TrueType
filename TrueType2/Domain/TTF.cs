@@ -1,4 +1,5 @@
-﻿using TrueType2.Domain.Cache.Vector;
+﻿using TrueType2.Domain.Cache.Pixel;
+using TrueType2.Domain.Cache.Vector;
 using TrueType2.Extension;
 using TrueType2.Mode;
 
@@ -20,6 +21,10 @@ namespace TrueType2.Domain
             if (_cache.ContainsKey(name) is false)
                 _cache.Add(name, new FontCache(new TTFRaw(name, File.ReadAllBytes(path))));
 
+
+            if (BitmapCache.Instance.ContainsKey(name) is false)
+                BitmapCache.Instance.Add(name, new FontBitmapCache(name));
+
             this._raw = _cache[name].Raw is TTFRaw ttfRaw ? ttfRaw : throw new ArgumentException();
 
             var lineGap = 0;
@@ -34,6 +39,7 @@ namespace TrueType2.Domain
         public void GetGlyph(char c, int size, int blur)
         {
             var vector = this._cache[this.Name].TryGet(c);
+            var canvas = BitmapCache.Instance[this.Name].TryGet(size);
 
 
             // Find code point and size.
@@ -62,7 +68,7 @@ namespace TrueType2.Domain
             //AtlasAddRect(Atlas.Instance, this._raw, glyphSize);
 
 
-            var bitmap = vector.Rasterize(renderSize, scale, shift, off);
+            var bitmap = vector.Rasterize(canvas, renderSize, scale, shift, off);
         }
 
         public void Dispose()
