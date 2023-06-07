@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using App.Objects;
+using Common;
 using Extension;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
@@ -48,6 +49,10 @@ namespace App
         private Texture? _texture;
 
         private int _uniformViewPort;
+
+
+
+        private List<IRenderObject> _renderObjects = new List<IRenderObject>();
 
 
         protected override void OnLoad()
@@ -110,6 +115,25 @@ namespace App
             GL.TexSubImage2D(TextureTarget.Texture2D, 0, x, y, w, h, PixelFormat.Alpha, PixelType.UnsignedByte, subData);
 
 
+            Random random = new Random();
+            for (int i = 0; i < 1; i++)
+            {
+                var p1 = new Point(100, 100);
+                var p2 = new Point(200, 100);
+
+
+                _renderObjects.Add(new RectangleObject(new Rectangle(p1, new Size(50, 50)), new OpenTK.Mathematics.Vector3(1, 1, 1)));
+                _renderObjects.Add(new RectangleObject(new Rectangle(p2, new Size(50, 50)), new OpenTK.Mathematics.Vector3(1, 1, 1)));
+            }
+
+
+
+            foreach (var renderObject in _renderObjects)
+            {
+                renderObject.OnLoad(this.Shader);
+            }
+
+
             this._uniformViewPort = GL.GetUniformLocation(this.Shader.ProgramHandle, "aViewport");
         }
 
@@ -135,6 +159,18 @@ namespace App
             GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
 
             GL.Enable(EnableCap.DepthTest);
+
+
+            Random random = new Random();
+            foreach (var renderObject in _renderObjects)
+            {
+                //if (renderObject is PointObject pointObject)
+                //{
+                //    pointObject.Location = new Point(random.Next(this.Size.X), random.Next(this.Size.Y));
+                //}
+                renderObject.OnRenderFrame(this.Shader);
+            }
+
             SwapBuffers();
         }
 

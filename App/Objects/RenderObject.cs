@@ -47,13 +47,13 @@ namespace App.Objects
 
         public virtual void SetParameters(Shader shader)
         {
-            shader.UniformMatrix3("aTransform", this.Matrix);
-            shader.Uniform2("aCenter", new Vector2(this.Center.X, this.Center.Y));
+            //shader.UniformMatrix3("aTransform", this.Matrix);
+            //shader.Uniform2("aCenter", new Vector2(this.Center.X, this.Center.Y));
 
             // Active texture
             shader.Uniform1("aTexture", 0);
-            shader.Uniform2("aTexOffset", new Vector2(0, 0));
-            shader.Uniform1("aMode", 0);
+            //shader.Uniform2("aTexOffset", new Vector2(0, 0));
+            //shader.Uniform1("aMode", 0);
             shader.Uniform1("aPointSize", 0);
         }
 
