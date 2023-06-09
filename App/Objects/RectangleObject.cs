@@ -44,10 +44,10 @@ namespace App.Objects
                 //new ColorVertex2(new Vector2(this.Location.X + this.Size.Width, this.Location.Y + this.Size.Height), this.Color),
                 //new ColorVertex2(new Vector2(this.Location.X, this.Location.Y + this.Size.Height), this.Color),
 
-                new ColorTextureVertex2(new Vector2(this.Location.X + this.Offset.X, this.Location.Y + this.Offset.Y + 100), new Vector4(random.Next(2), random.Next(2), random.Next(2), 1), new Vector2(left, top)),
-                new ColorTextureVertex2(new Vector2(this.Location.X + this.Offset.X + this.Size.Width, this.Location.Y + this.Offset.Y + 100), new Vector4(random.Next(2), random.Next(2), random.Next(2), 1), new Vector2(right, top)),
-                new ColorTextureVertex2(new Vector2(this.Location.X + this.Offset.X + this.Size.Width, this.Location.Y + this.Offset.Y + this.Size.Height + 100), new Vector4(random.Next(2), random.Next(2), random.Next(2), 1), new Vector2(right, bottom)),
-                new ColorTextureVertex2(new Vector2(this.Location.X + this.Offset.X, this.Location.Y + this.Offset.Y + this.Size.Height + 100), new Vector4(random.Next(2), random.Next(2), random.Next(2), 1), new Vector2(left, bottom)),
+                new ColorTextureVertex2(new Vector2(this.Location.X + this.Offset.X, this.Location.Y + this.Offset.Y + 100), this.Color, new Vector2(left, top)),
+                new ColorTextureVertex2(new Vector2(this.Location.X + this.Offset.X + this.Size.Width, this.Location.Y + this.Offset.Y + 100), this.Color, new Vector2(right, top)),
+                new ColorTextureVertex2(new Vector2(this.Location.X + this.Offset.X + this.Size.Width, this.Location.Y + this.Offset.Y + this.Size.Height + 100), this.Color, new Vector2(right, bottom)),
+                new ColorTextureVertex2(new Vector2(this.Location.X + this.Offset.X, this.Location.Y + this.Offset.Y + this.Size.Height + 100), this.Color, new Vector2(left, bottom)),
             };
 
             _indices = new uint[]

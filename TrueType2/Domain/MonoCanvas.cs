@@ -24,19 +24,30 @@ namespace TrueType2.Domain
         {
             Array.Copy(scanline.Data!, 0, this.Pixels, this.Location.X + this.Location.Y * this.Size.Width + (lineIndex * this.Size.Width), renderSize.Width);
         }
-
-        public void UpdateLocation( Size renderSize)
+        public void TryLocate(Size renderSize, Point offset)
         {
             var padding = 2;
             var location = this.Location;
-            if (this.Location.X + renderSize.Width + padding * 2  > this.Size.Width)
+            if (this.Location.X + renderSize.Width + padding * 2 > this.Size.Width)
+            {
+                location.X = 0;
+                location.Y += this.FontSize + padding * 2;
+            }
+            this.Location = location;
+        }
+
+        public void UpdateLocation( Size renderSize, Point offset)
+        {
+            var padding = 2;
+            var location = this.Location;
+            if (this.Location.X + renderSize.Width + padding * 2 > this.Size.Width)
             {
                 location.X = 0;
                 location.Y += this.FontSize + padding * 2;
             }
             else
             {
-                location.X += renderSize.Width + padding * 2;
+                location.X += renderSize.Width + offset.X + padding * 2;
             }
             this.Location = location;
         }

@@ -10,7 +10,7 @@ namespace TrueType
     {
         private Cache() 
         {
-            this.Pixels = new byte[480 * 480];
+            this.Pixels = new byte[512 * 512];
         }
 
 

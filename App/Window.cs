@@ -66,12 +66,12 @@ namespace App
                 var ttf = new TrueType2.Domain.TTF("Zpix", path);
 
                 Random random = new Random();
-                var fontSize = 24 * 1;
-                foreach (var c in "终于能显示了，哈哈")
+                var fontSize = 12;
+                foreach (var c in "，看看现在的效果怎么样了？还可以吧。，看看现在的效果怎么样了？还可以吧。，看看现在的效果怎么样了？还可以吧。，看看现在的效果怎么样了？还可以吧。")
                 {
                     var bitmap = ttf.GetGlyph(c, fontSize, 0);
 
-                    _renderObjects.Add(new RectangleObject(new Rectangle(bitmap.Rectangle.X, bitmap.Rectangle.Y, bitmap.Rectangle.Width, bitmap.Rectangle.Height), new Vector4(random.Next(2), random.Next(2), random.Next(2), 1), new Point(bitmap.Offset.X, bitmap.Offset.Y)));
+                    _renderObjects.Add(new RectangleObject(new Rectangle(bitmap.Rectangle.X, bitmap.Rectangle.Y, bitmap.Rectangle.Width, bitmap.Rectangle.Height), new Vector4((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble(), 1), new Point(bitmap.Offset.X, bitmap.Offset.Y)));
                 }
             }
 
@@ -112,34 +112,26 @@ namespace App
             _texture = new Texture(TextureUnit.Texture0, TextureMinFilter.Nearest).With(x => x.LoadRaw(canvas.Pixels, canvas.Size.Width, canvas.Size.Height, PixelFormat.Alpha, PixelInternalFormat.Rgba));
 
 
-            var subData = new byte[] {
-                0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
-                0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
-                0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
-                0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
-                0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
-                0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
-                0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
-                0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
-            };
+            //var subData = new byte[] {
+            //    0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
+            //    0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
+            //    0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
+            //    0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
+            //    0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
+            //    0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
+            //    0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
+            //    0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
+            //};
 
-            var x = 0;
-            var y = 0;
-            var w = 8;
-            var h = 8;
+            //var x = 0;
+            //var y = 0;
+            //var w = 8;
+            //var h = 8;
 
-            GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
-            //GL.PixelStore(PixelStoreParameter.UnpackSkipPixels, x);
-            //GL.PixelStore(PixelStoreParameter.UnpackSkipRows, y);
-            GL.TexSubImage2D(TextureTarget.Texture2D, 0, x, y, w, h, PixelFormat.Alpha, PixelType.UnsignedByte, subData);
-
-            //for (int i = 0; i < 1; i++)
-            //{
-            //    var p1 = new Point(1, 200);
-            //    var p2 = new Point(200, 200);
-
-            //    _renderObjects.Add(new RectangleObject(new Rectangle(p2, new Size(50, 50)), new Vector3(1, 1, 1)));
-            //}
+            //GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
+            ////GL.PixelStore(PixelStoreParameter.UnpackSkipPixels, x);
+            ////GL.PixelStore(PixelStoreParameter.UnpackSkipRows, y);
+            //GL.TexSubImage2D(TextureTarget.Texture2D, 0, x, y, w, h, PixelFormat.Alpha, PixelType.UnsignedByte, subData);
 
             foreach (var renderObject in _renderObjects)
             {

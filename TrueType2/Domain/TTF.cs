@@ -67,7 +67,6 @@ namespace TrueType2.Domain
             // Location-related
             //AtlasAddRect(Atlas.Instance, this._raw, glyphSize);
 
-
             var bitmap = vector.Rasterize(canvas, renderSize, scale, shift, off);
             return bitmap;
         }

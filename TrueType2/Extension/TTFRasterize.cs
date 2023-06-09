@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TrueType2.Domain;
+﻿using TrueType2.Domain;
 using TrueType2.Domain.Cache.Pixel;
 using TrueType2.Mode;
 
@@ -59,10 +54,13 @@ namespace TrueType2.Extension
 
             var edges = windings!.stbtt__rasterize(vsubsample, scale, shift, off, true);
 
+            canvas.TryLocate(renderSize, off);
+
             var location = canvas.Location;
             edges!.stbtt__rasterize_sorted_edges(canvas, renderSize, vsubsample, off);
-
-            return new TTFBitmap(canvas, new Rect(location.X, location.Y, renderSize.Width, renderSize.Height), off);
+            var bitmap = new TTFBitmap(canvas, new Rect(location.X, location.Y, renderSize.Width, renderSize.Height), off);
+            canvas.UpdateLocation(renderSize, off);
+            return bitmap;
         }
 
         static void stbtt__rasterize_sorted_edges(this Edge[] edges, MonoCanvas canvas, Size renderSize, int vsubsample, Point off)
@@ -177,8 +175,6 @@ namespace TrueType2.Extension
                 ++lineIndex;
 
             }
-
-            canvas.UpdateLocation(renderSize);
         }
 
         static void stbtt__fill_active_edges(byte[] scanline, int len, ActiveEdge? edge, int max_weight)

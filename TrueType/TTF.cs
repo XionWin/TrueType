@@ -288,7 +288,7 @@ namespace TrueType
                     ++y;
                 }
 
-                Array.Copy(scanline, 0, Cache.Instance.Pixels, 0 + offset + 0 * 480 + (j * 480), renderSize.Width);
+                Array.Copy(scanline, 0, Cache.Instance.Pixels, 0 + offset + 0 * 512 + (j * 512), renderSize.Width);
 
                 ++j;
 

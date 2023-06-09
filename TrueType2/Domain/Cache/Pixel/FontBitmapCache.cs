@@ -16,6 +16,6 @@ namespace TrueType2.Domain.Cache.Pixel
         public MonoCanvas TryGet(int fontSize) =>
             this.ContainsKey(fontSize) ?
                 this[fontSize]
-                : new MonoCanvas(64, new Mode.Size(512, 512)).With(x => Add(fontSize, x));
+                : new MonoCanvas(fontSize, new Mode.Size(512, 512)).With(x => Add(fontSize, x));
     }
 }
