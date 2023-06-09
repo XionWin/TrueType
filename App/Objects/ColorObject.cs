@@ -6,10 +6,10 @@ namespace App.Objects
 {
     internal abstract class ColorObject : RenderObject
     {
-        public Vector3 Color { get; set; }
+        public Vector4 Color { get; set; }
 
 
-        public ColorObject(Point location, Vector3 color)
+        public ColorObject(Point location, Vector4 color)
         {
             this.Location = location;
             this.Color = color;

@@ -59,17 +59,19 @@ namespace App
         protected override void OnLoad()
         {
 
-            var path = @"Resources/Fonts/PixelMix.ttf";
+            var path = @"Resources/Fonts/Zpix.ttf";
 
             if (File.Exists(path))
             {
-                var ttf = new TrueType2.Domain.TTF("PixelMix", path);
+                var ttf = new TrueType2.Domain.TTF("Zpix", path);
 
-                var fontSize = 64;
-                foreach (var c in "Hi,GoodMorning!")
+                Random random = new Random();
+                var fontSize = 24 * 1;
+                foreach (var c in "终于能显示了，哈哈")
                 {
                     var bitmap = ttf.GetGlyph(c, fontSize, 0);
-                    _renderObjects.Add(new RectangleObject(new Rectangle(bitmap.Rectangle.X, bitmap.Rectangle.Y, bitmap.Rectangle.Width, bitmap.Rectangle.Height), new Vector3(1, 1, 1)));
+
+                    _renderObjects.Add(new RectangleObject(new Rectangle(bitmap.Rectangle.X, bitmap.Rectangle.Y, bitmap.Rectangle.Width, bitmap.Rectangle.Height), new Vector4(random.Next(2), random.Next(2), random.Next(2), 1), new Point(bitmap.Offset.X, bitmap.Offset.Y)));
                 }
             }
 

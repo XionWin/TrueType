@@ -22,7 +22,8 @@ namespace App.Objects
         public Point Location { get; set; }
 
         public Matrix3 Matrix { get; set; } = Matrix3.Identity;
-        public abstract IVertex2[]? Vertices { get; }
+        public abstract IVertex2[] Vertices { get; }
+        public abstract uint[] Indices { get; }
 
         public abstract Point Center { get; }
 
@@ -41,8 +42,12 @@ namespace App.Objects
         {
             // bind vbo and set data for vbo
             GL.BindBuffer(BufferTarget.ArrayBuffer, this.VBO);
-            var vertices = this.Vertices!.GetRaw();
+            var vertices = this.Vertices.GetRaw();
             GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
+
+            // bind ebo and set data for ebo
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, this.EBO);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, Indices.Length * sizeof(uint), Indices, BufferUsageHint.StaticDraw);
         }
 
         public virtual void SetParameters(Shader shader)
@@ -67,6 +72,8 @@ namespace App.Objects
             // Enable Alpha
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
+            GL.DrawElements(PrimitiveType.Triangles, this.Indices.Length, DrawElementsType.UnsignedInt, 0);
         }
 
         public void OnUnload()

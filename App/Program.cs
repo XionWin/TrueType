@@ -30,7 +30,7 @@ namespace App
 
 
             // To create a new window, create a class that extends GameWindow, then call Run() on it.
-            using (var window = new Window(512, 1024))
+            using (var window = new Window(1024, 1024))
                 window.Run();
         }
     }

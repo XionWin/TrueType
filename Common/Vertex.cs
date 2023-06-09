@@ -29,10 +29,10 @@ namespace Common
         public readonly static IEnumerable<AttribLocation> AttribLocations = new[]
         {
             new AttribLocation("aPos", 0, 2),
-            new AttribLocation("aColor", 2, 3),
+            new AttribLocation("aColor", 2, 4),
         };
         public Vector2 Position { get; init; }
-        public Vector3 Color { get; init; }
+        public Vector4 Color { get; init; }
 
         private float[]? raw = null;
         public float[] Raw
@@ -47,7 +47,7 @@ namespace Common
             }
         }
 
-        public ColorVertex2(Vector2 position, Vector3 color)
+        public ColorVertex2(Vector2 position, Vector4 color)
         {
             this.Position = position;
             this.Color = color;
@@ -122,7 +122,7 @@ namespace Common
 
     public static class Vertex2Extension
     {
-        public static float[] GetRaw(this ColorVertex2 vertex) => new[] { vertex.Position.X, vertex.Position.Y, vertex.Color.X, vertex.Color.Y, vertex.Color.Z };
+        public static float[] GetRaw(this ColorVertex2 vertex) => new[] { vertex.Position.X, vertex.Position.Y, vertex.Color.X, vertex.Color.Y, vertex.Color.Z, vertex.Color.W };
         public static float[] GetRaw(this TextureVertex2 vertex) => new[] { vertex.Position.X, vertex.Position.Y, vertex.Coordinate.X, vertex.Coordinate.Y };
         public static float[] GetRaw(this ColorTextureVertex2 vertex) => new[] { vertex.Position.X, vertex.Position.Y, vertex.Color.X, vertex.Color.Y, vertex.Color.Z, vertex.Color.W, vertex.Coordinate.X, vertex.Coordinate.Y };
         public static float[] GetRaw(this IEnumerable<IVertex2> vertices) => vertices.SelectMany(x => x.Raw).ToArray();

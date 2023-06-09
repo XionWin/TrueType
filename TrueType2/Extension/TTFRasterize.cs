@@ -62,7 +62,7 @@ namespace TrueType2.Extension
             var location = canvas.Location;
             edges!.stbtt__rasterize_sorted_edges(canvas, renderSize, vsubsample, off);
 
-            return new TTFBitmap(canvas, new Rect(location.X, location.Y, renderSize.Width, renderSize.Height));
+            return new TTFBitmap(canvas, new Rect(location.X, location.Y, renderSize.Width, renderSize.Height), off);
         }
 
         static void stbtt__rasterize_sorted_edges(this Edge[] edges, MonoCanvas canvas, Size renderSize, int vsubsample, Point off)
