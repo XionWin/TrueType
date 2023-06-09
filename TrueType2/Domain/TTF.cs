@@ -36,7 +36,7 @@ namespace TrueType2.Domain
 
         }
 
-        public void GetGlyph(char c, int size, int blur)
+        public TTFBitmap GetGlyph(char c, int size, int blur)
         {
             var vector = this._cache[this.Name].TryGet(c);
             var canvas = BitmapCache.Instance[this.Name].TryGet(size);
@@ -69,6 +69,7 @@ namespace TrueType2.Domain
 
 
             var bitmap = vector.Rasterize(canvas, renderSize, scale, shift, off);
+            return bitmap;
         }
 
         public void Dispose()

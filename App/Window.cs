@@ -10,6 +10,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,10 +29,10 @@ namespace App
             //new ColorTextureVertex2(new Vector2(496f, 16f), new Vector4(1, 0, 0, 1), new Vector2(1f, 0.0f)),
             //new ColorTextureVertex2(new Vector2(496f, 496f), new Vector4(0, 1, 0, 1), new Vector2(1f, 1f)),
             //new ColorTextureVertex2(new Vector2(16f, 496f), new Vector4(0, 0, 1, 1), new Vector2(0.0f, 1f)),
-            new ColorTextureVertex2(new Vector2(16f, 16f), new Vector4(1, 1, 1, 1), new Vector2(0.0f, 0.0f)),
-            new ColorTextureVertex2(new Vector2(496f, 16f), new Vector4(1, 1, 1, 1), new Vector2(1f, 0.0f)),
-            new ColorTextureVertex2(new Vector2(496f, 496f), new Vector4(1, 1, 1, 1), new Vector2(1f, 1f)),
-            new ColorTextureVertex2(new Vector2(16f, 496f), new Vector4(1, 1, 1, 1), new Vector2(0.0f, 1f)),
+            new ColorTextureVertex2(new Vector2(0, 512f), new Vector4(1, 1, 1, 1), new Vector2(0.0f, 0.0f)),
+            new ColorTextureVertex2(new Vector2(512f, 512f), new Vector4(1, 1, 1, 1), new Vector2(1f, 0.0f)),
+            new ColorTextureVertex2(new Vector2(512f, 1024f), new Vector4(1, 1, 1, 1), new Vector2(1f, 1f)),
+            new ColorTextureVertex2(new Vector2(0, 1024f), new Vector4(1, 1, 1, 1), new Vector2(0.0f, 1f)),
         };
 
         private readonly uint[] _indices =
@@ -57,6 +58,22 @@ namespace App
 
         protected override void OnLoad()
         {
+
+            var path = @"Resources/Fonts/PixelMix.ttf";
+
+            if (File.Exists(path))
+            {
+                var ttf = new TrueType2.Domain.TTF("PixelMix", path);
+
+                var fontSize = 64;
+                foreach (var c in "Hi,GoodMorning!")
+                {
+                    var bitmap = ttf.GetGlyph(c, fontSize, 0);
+                    _renderObjects.Add(new RectangleObject(new Rectangle(bitmap.Rectangle.X, bitmap.Rectangle.Y, bitmap.Rectangle.Width, bitmap.Rectangle.Height), new Vector3(1, 1, 1)));
+                }
+            }
+
+
             base.OnLoad();
 
             GL.ClearColor(Color.MidnightBlue);
@@ -114,19 +131,13 @@ namespace App
             //GL.PixelStore(PixelStoreParameter.UnpackSkipRows, y);
             GL.TexSubImage2D(TextureTarget.Texture2D, 0, x, y, w, h, PixelFormat.Alpha, PixelType.UnsignedByte, subData);
 
+            //for (int i = 0; i < 1; i++)
+            //{
+            //    var p1 = new Point(1, 200);
+            //    var p2 = new Point(200, 200);
 
-            Random random = new Random();
-            for (int i = 0; i < 1; i++)
-            {
-                var p1 = new Point(100, 100);
-                var p2 = new Point(200, 100);
-
-
-                _renderObjects.Add(new RectangleObject(new Rectangle(p1, new Size(50, 50)), new OpenTK.Mathematics.Vector3(1, 1, 1)));
-                _renderObjects.Add(new RectangleObject(new Rectangle(p2, new Size(50, 50)), new OpenTK.Mathematics.Vector3(1, 1, 1)));
-            }
-
-
+            //    _renderObjects.Add(new RectangleObject(new Rectangle(p2, new Size(50, 50)), new Vector3(1, 1, 1)));
+            //}
 
             foreach (var renderObject in _renderObjects)
             {

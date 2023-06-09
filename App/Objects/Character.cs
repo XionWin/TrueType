@@ -1,4 +1,5 @@
 ﻿using Common;
+using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -8,10 +9,15 @@ using System.Threading.Tasks;
 
 namespace App.Objects
 {
-    internal class Character : RenderObject
+    internal class Character : RectangleObject
     {
-        public override IVertex2[]? Vertices => throw new NotImplementedException();
+        public Character(Rectangle rect, Vector3 color) : base(rect, color)
+        {
+        }
 
-        public override Point Center => throw new NotImplementedException();
+        public override void OnLoad(Shader shader)
+        {
+            base.OnLoad(shader);
+        }
     }
 }
