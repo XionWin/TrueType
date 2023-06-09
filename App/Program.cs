@@ -11,6 +11,7 @@ namespace App
         {
             System.Diagnostics.Debug.WriteLine("Hello, World!");
 
+
             //var path = @"Resources/Fonts/PixelMix.ttf";
             //var font = new Font("sans", path);
 
