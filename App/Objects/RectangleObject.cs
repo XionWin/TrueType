@@ -19,14 +19,11 @@ namespace App.Objects
 
         public Size Size { get; set; }
 
-        public Point Offset { get; set; }
-
         public override Point Center => new Point(this.Location.X + this.Size.Width / 2, this.Location.Y + this.Size.Height / 2);
 
-        public RectangleObject(Rectangle rect, Vector4 color, Point offset) : base(rect.Location, color)
+        public RectangleObject(Rectangle rect, Vector4 color) : base(rect.Location, color)
         {
             this.Size = rect.Size;
-            this.Offset = offset;
         }
 
         Random random = new Random();
@@ -44,10 +41,10 @@ namespace App.Objects
                 //new ColorVertex2(new Vector2(this.Location.X + this.Size.Width, this.Location.Y + this.Size.Height), this.Color),
                 //new ColorVertex2(new Vector2(this.Location.X, this.Location.Y + this.Size.Height), this.Color),
 
-                new ColorTextureVertex2(new Vector2(this.Location.X + this.Offset.X, this.Location.Y + this.Offset.Y + 100), this.Color, new Vector2(left, top)),
-                new ColorTextureVertex2(new Vector2(this.Location.X + this.Offset.X + this.Size.Width, this.Location.Y + this.Offset.Y + 100), this.Color, new Vector2(right, top)),
-                new ColorTextureVertex2(new Vector2(this.Location.X + this.Offset.X + this.Size.Width, this.Location.Y + this.Offset.Y + this.Size.Height + 100), this.Color, new Vector2(right, bottom)),
-                new ColorTextureVertex2(new Vector2(this.Location.X + this.Offset.X, this.Location.Y + this.Offset.Y + this.Size.Height + 100), this.Color, new Vector2(left, bottom)),
+                new ColorTextureVertex2(new Vector2(this.Location.X, this.Location.Y + 100), this.Color, new Vector2(left, top)),
+                new ColorTextureVertex2(new Vector2(this.Location.X + this.Size.Width, this.Location.Y + 100), this.Color, new Vector2(right, top)),
+                new ColorTextureVertex2(new Vector2(this.Location.X + this.Size.Width, this.Location.Y + this.Size.Height + 100), this.Color, new Vector2(right, bottom)),
+                new ColorTextureVertex2(new Vector2(this.Location.X, this.Location.Y + this.Size.Height + 100), this.Color, new Vector2(left, bottom)),
             };
 
             _indices = new uint[]

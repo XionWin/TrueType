@@ -59,19 +59,19 @@ namespace App
         protected override void OnLoad()
         {
 
-            var path = @"Resources/Fonts/Zpix.ttf";
+            var path = @"Resources/Fonts/DroidSerif-Italic.ttf";
 
             if (File.Exists(path))
             {
-                var ttf = new TrueType2.Domain.TTF("Zpix", path);
+                var ttf = new TrueType2.Domain.TTF("DroidSerif-Italic", path);
 
                 Random random = new Random();
-                var fontSize = 12;
-                foreach (var c in "，看看现在的效果怎么样了？还可以吧。，看看现在的效果怎么样了？还可以吧。，看看现在的效果怎么样了？还可以吧。，看看现在的效果怎么样了？还可以吧。")
+                var fontSize = 24;
+                foreach (var c in ",A")
                 {
                     var bitmap = ttf.GetGlyph(c, fontSize, 0);
 
-                    _renderObjects.Add(new RectangleObject(new Rectangle(bitmap.Rectangle.X, bitmap.Rectangle.Y, bitmap.Rectangle.Width, bitmap.Rectangle.Height), new Vector4((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble(), 1), new Point(bitmap.Offset.X, bitmap.Offset.Y)));
+                    _renderObjects.Add(new RectangleObject(new Rectangle(bitmap.Rectangle.X, bitmap.Rectangle.Y, bitmap.Rectangle.Width, bitmap.Rectangle.Height), new Vector4((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble(), 1)));
                 }
             }
 

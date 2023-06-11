@@ -26,28 +26,26 @@ namespace TrueType2.Domain
         }
         public void TryLocate(Size renderSize, Point offset)
         {
-            var padding = 2;
             var location = this.Location;
-            if (this.Location.X + renderSize.Width + padding * 2 > this.Size.Width)
+            if (this.Location.X + renderSize.Width > this.Size.Width)
             {
                 location.X = 0;
-                location.Y += this.FontSize + padding * 2;
+                location.Y += this.FontSize;
             }
             this.Location = location;
         }
 
         public void UpdateLocation( Size renderSize, Point offset)
         {
-            var padding = 2;
             var location = this.Location;
-            if (this.Location.X + renderSize.Width + padding * 2 > this.Size.Width)
+            if (this.Location.X + renderSize.Width > this.Size.Width)
             {
                 location.X = 0;
-                location.Y += this.FontSize + padding * 2;
+                location.Y += this.FontSize;
             }
             else
             {
-                location.X += renderSize.Width + offset.X + padding * 2;
+                location.X += renderSize.Width;
             }
             this.Location = location;
         }
