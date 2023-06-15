@@ -1,7 +1,6 @@
 ﻿using Common;
 using System.IO;
 using System.Xml.Linq;
-using TrueType;
 
 namespace App
 {

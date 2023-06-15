@@ -20,7 +20,6 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Common\Common.csproj" />
 		<ProjectReference Include="..\TrueType\TrueType.csproj" />
-		<ProjectReference Include="..\TrueType2\TrueType2.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -6,7 +6,7 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Drawing;
-using TrueType2.Domain.Cache.Pixel;
+using TrueType.Domain.Cache.Pixel;
 
 namespace App
 {
@@ -48,7 +48,7 @@ namespace App
 
             if (File.Exists(path))
             {
-                var ttf = new TrueType2.Domain.TTF(fontName, path);
+                var ttf = new TrueType.Domain.TTF(fontName, path);
 
                 var fontSize = 24 * 2;
                 var x = 0;
@@ -66,6 +66,7 @@ namespace App
                     var texCoordHeight = (float)bitmap.TexRect.Height / bitmap.Canvas.Size.Height;
                     var texCoord = new RectangleF(texCoordX, texCoordY, texCoordWidth, texCoordHeight);
 
+                    // Why can't use the offset x?
                     _renderObjects.Add(new RectangleObject(new Rectangle(x, y, glyph.Rect.Width, glyph.Rect.Height), color, texCoord, new Point(0, /*glyph.Offset.X,*/ glyph.Offset.Y)));
                     x += glyph.Rect.Width;
                 }
