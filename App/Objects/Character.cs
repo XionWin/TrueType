@@ -11,7 +11,7 @@ namespace App.Objects
 {
     internal class Character : RectangleObject
     {
-        public Character(Rectangle rect, Vector4 color) : base(rect, color)
+        public Character(Rectangle rect, Vector4 color, RectangleF texCoord, Point offset) : base(rect, color, texCoord, offset)
         {
         }
 

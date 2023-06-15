@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace App.Objects
 {
-    internal class RectangleObject : ColorObject
+    internal class RectangleObject : RenderObject
     {
         private IVertex2[]? _vertices = null;
         public override IVertex2[] Vertices => this._vertices ?? throw new ArgumentException();
@@ -16,35 +16,35 @@ namespace App.Objects
         private uint[]? _indices = null;
         public override uint[] Indices => this._indices ?? throw new ArgumentException();
 
+        public Rectangle Rectangle { get; set; }
+        public Vector4 Color { get; set; }
+        public RectangleF TexCoord { get; set; }
+        public Matrix3 Matrix { get; set; } = Matrix3.Identity;
+        public Point Offset { get; set; }
 
-        public Size Size { get; set; }
 
-        public override Point Center => new Point(this.Location.X + this.Size.Width / 2, this.Location.Y + this.Size.Height / 2);
+        public override Point Center => new Point(this.Rectangle.X + this.Rectangle.Width / 2, this.Rectangle.Y + this.Rectangle.Height / 2);
 
-        public RectangleObject(Rectangle rect, Vector4 color) : base(rect.Location, color)
+        public RectangleObject(Rectangle rectangle, Vector4 color, RectangleF texCoord, Point offset)
         {
-            this.Size = rect.Size;
+            this.Rectangle = rectangle;
+            this.Color = color;
+            this.TexCoord = texCoord;
+            this.Offset = offset;
         }
 
-        Random random = new Random();
         public override void OnLoad(Shader shader)
         {
-            var left = (float)this.Location.X / 512;
-            var top = (float)this.Location.Y / 512;
-            var right = (float)(this.Location.X + this.Size.Width) / 512;
-            var bottom = (float)(this.Location.Y + this.Size.Height) / 512;
+            var offsetX = this.Offset.X;
+            var offsetY = this.Offset.Y;
+
             // Change vertices data
             _vertices = new IVertex2[]
             {
-                //new ColorVertex2(new Vector2(this.Location.X, this.Location.Y), this.Color),
-                //new ColorVertex2(new Vector2(this.Location.X + this.Size.Width, this.Location.Y), this.Color),
-                //new ColorVertex2(new Vector2(this.Location.X + this.Size.Width, this.Location.Y + this.Size.Height), this.Color),
-                //new ColorVertex2(new Vector2(this.Location.X, this.Location.Y + this.Size.Height), this.Color),
-
-                new ColorTextureVertex2(new Vector2(this.Location.X, this.Location.Y + 100), this.Color, new Vector2(left, top)),
-                new ColorTextureVertex2(new Vector2(this.Location.X + this.Size.Width, this.Location.Y + 100), this.Color, new Vector2(right, top)),
-                new ColorTextureVertex2(new Vector2(this.Location.X + this.Size.Width, this.Location.Y + this.Size.Height + 100), this.Color, new Vector2(right, bottom)),
-                new ColorTextureVertex2(new Vector2(this.Location.X, this.Location.Y + this.Size.Height + 100), this.Color, new Vector2(left, bottom)),
+                new ColorTextureVertex2(new Vector2(this.Rectangle.X + offsetX, this.Rectangle.Y + offsetY + 100), this.Color, new Vector2(this.TexCoord.Left, this.TexCoord.Top)),
+                new ColorTextureVertex2(new Vector2(this.Rectangle.X + offsetX + this.Rectangle.Width, this.Rectangle.Y + offsetY + 100), this.Color, new Vector2(this.TexCoord.Right, this.TexCoord.Top)),
+                new ColorTextureVertex2(new Vector2(this.Rectangle.X + offsetX + this.Rectangle.Width, this.Rectangle.Y + offsetY + this.Rectangle.Height + 100), this.Color, new Vector2(this.TexCoord.Right, this.TexCoord.Bottom)),
+                new ColorTextureVertex2(new Vector2(this.Rectangle.X + offsetX, this.Rectangle.Y + offsetY + this.Rectangle.Height + 100), this.Color, new Vector2(this.TexCoord.Left, this.TexCoord.Bottom)),
             };
 
             _indices = new uint[]

@@ -19,14 +19,9 @@ namespace App.Objects
 
         public int EBO { get; set; }
 
-        public Point Location { get; set; }
-
-        public Matrix3 Matrix { get; set; } = Matrix3.Identity;
         public abstract IVertex2[] Vertices { get; }
         public abstract uint[] Indices { get; }
-
         public abstract Point Center { get; }
-
 
         public virtual void OnLoad(Shader shader)
         {
@@ -35,11 +30,7 @@ namespace App.Objects
             this.EBO = GL.GenBuffer();
 
             GL.BindVertexArray(this.VAO);
-            SetVBO();
-        }
 
-        public void SetVBO()
-        {
             // bind vbo and set data for vbo
             GL.BindBuffer(BufferTarget.ArrayBuffer, this.VBO);
             var vertices = this.Vertices.GetRaw();

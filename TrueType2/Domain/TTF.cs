@@ -7,7 +7,7 @@ namespace TrueType2.Domain
 {
     public class TTF : IDisposable
     {
-        public string Name { get; set; }
+        public string Name { get; set; } 
         public string Path { get; set; }
 
         private Cache.Vector.Cache _cache = Cache.Vector.Cache.Instance;
@@ -62,10 +62,13 @@ namespace TrueType2.Domain
             var renderSize = new Size(x1 - x0, y1 - y0);
             var glyphSize = new Size(renderSize.Width + pad * 2, renderSize.Height + pad * 2);
 
-            var off = new Point(x0, y0);
 
             // Location-related
             //AtlasAddRect(Atlas.Instance, this._raw, glyphSize);
+
+            var xadv = (short)(scaleValue * advanceWidth * 10.0f);
+            var off = new Point(x0, y0);
+
 
             var bitmap = vector.Rasterize(canvas, renderSize, scale, shift, off);
             return bitmap;

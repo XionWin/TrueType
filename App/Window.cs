@@ -4,16 +4,8 @@ using Extension;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
-using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using SixLabors.ImageSharp.PixelFormats;
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TrueType2.Domain.Cache.Pixel;
 
 namespace App
@@ -25,10 +17,6 @@ namespace App
 
         private readonly IVertex2[] _vertices = new IVertex2[]
         {
-            //new ColorTextureVertex2(new Vector2(16f, 16f), new Vector4(1, 0, 1, 1), new Vector2(0.0f, 0.0f)),
-            //new ColorTextureVertex2(new Vector2(496f, 16f), new Vector4(1, 0, 0, 1), new Vector2(1f, 0.0f)),
-            //new ColorTextureVertex2(new Vector2(496f, 496f), new Vector4(0, 1, 0, 1), new Vector2(1f, 1f)),
-            //new ColorTextureVertex2(new Vector2(16f, 496f), new Vector4(0, 0, 1, 1), new Vector2(0.0f, 1f)),
             new ColorTextureVertex2(new Vector2(0, 512f), new Vector4(1, 1, 1, 1), new Vector2(0.0f, 0.0f)),
             new ColorTextureVertex2(new Vector2(512f, 512f), new Vector4(1, 1, 1, 1), new Vector2(1f, 0.0f)),
             new ColorTextureVertex2(new Vector2(512f, 1024f), new Vector4(1, 1, 1, 1), new Vector2(1f, 1f)),
@@ -51,30 +39,39 @@ namespace App
 
         private int _uniformViewPort;
 
-
-
         private List<IRenderObject> _renderObjects = new List<IRenderObject>();
-
 
         protected override void OnLoad()
         {
-
-            var path = @"Resources/Fonts/DroidSerif-Italic.ttf";
+            var path = @"Resources/Fonts/SmileySans.ttf";
 
             if (File.Exists(path))
             {
-                var ttf = new TrueType2.Domain.TTF("DroidSerif-Italic", path);
+                var ttf = new TrueType2.Domain.TTF("SmileySans", path);
 
                 Random random = new Random();
-                var fontSize = 24;
-                foreach (var c in ",A")
+                var fontSize = 24 * 2;
+
+                var x = 0;
+                var y = 100;
+                foreach (var c in "早上好，林女士。Press_Enter_To_Contiune")
                 {
                     var bitmap = ttf.GetGlyph(c, fontSize, 0);
+                    var color = new Vector4(1, 1, 1, 1);
+                    //var color = new Vector4((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble(), 1);
 
-                    _renderObjects.Add(new RectangleObject(new Rectangle(bitmap.Rectangle.X, bitmap.Rectangle.Y, bitmap.Rectangle.Width, bitmap.Rectangle.Height), new Vector4((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble(), 1)));
+
+                    var texCoordX = (float)bitmap.Rectangle.X / 512;
+                    var texCoordY = (float)bitmap.Rectangle.Y / 512;
+                    var texCoordWidth = (float)bitmap.Rectangle.Width / 512;
+                    var texCoordHeight = (float)bitmap.Rectangle.Height / 512;
+
+                    var texCoord = new RectangleF(texCoordX, texCoordY, texCoordWidth, texCoordHeight);
+
+                    _renderObjects.Add(new RectangleObject(new Rectangle(x, y, bitmap.Rectangle.Width, bitmap.Rectangle.Height), color, texCoord, new Point(bitmap.Offset.X, bitmap.Offset.Y)));
+                    x += bitmap.Rectangle.Width + 2;
                 }
             }
-
 
             base.OnLoad();
 
