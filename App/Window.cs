@@ -52,7 +52,7 @@ namespace App
 
                 var fontSize = 24 * 2;
                 var x = 0;
-                var y = 100;
+                var y = fontSize;
                 foreach (var c in "早上好，林老师。Press_Enter_To_Contiune")
                 {
                     var glyph = ttf.GetGlyph(c, fontSize, 0);
@@ -66,7 +66,7 @@ namespace App
                     var texCoordHeight = (float)bitmap.TexRect.Height / bitmap.Canvas.Size.Height;
                     var texCoord = new RectangleF(texCoordX, texCoordY, texCoordWidth, texCoordHeight);
 
-                    _renderObjects.Add(new RectangleObject(new Rectangle(x, y, glyph.Rect.Width, glyph.Rect.Height), color, texCoord, new Point(glyph.Offset.X, glyph.Offset.Y)));
+                    _renderObjects.Add(new RectangleObject(new Rectangle(x, y, glyph.Rect.Width, glyph.Rect.Height), color, texCoord, new Point(0, /*glyph.Offset.X,*/ glyph.Offset.Y)));
                     x += glyph.Rect.Width;
                 }
             }

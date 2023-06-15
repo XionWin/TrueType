@@ -35,16 +35,16 @@ namespace App.Objects
 
         public override void OnLoad(Shader shader)
         {
-            var offsetX = 0; // this.Offset.X;
+            var offsetX = this.Offset.X; 
             var offsetY = this.Offset.Y;
 
             // Change vertices data
             _vertices = new IVertex2[]
             {
-                new ColorTextureVertex2(new Vector2(this.Rectangle.X + offsetX, this.Rectangle.Y + offsetY + 100), this.Color, new Vector2(this.TexCoord.Left, this.TexCoord.Top)),
-                new ColorTextureVertex2(new Vector2(this.Rectangle.X + offsetX + this.Rectangle.Width, this.Rectangle.Y + offsetY + 100), this.Color, new Vector2(this.TexCoord.Right, this.TexCoord.Top)),
-                new ColorTextureVertex2(new Vector2(this.Rectangle.X + offsetX + this.Rectangle.Width, this.Rectangle.Y + offsetY + this.Rectangle.Height + 100), this.Color, new Vector2(this.TexCoord.Right, this.TexCoord.Bottom)),
-                new ColorTextureVertex2(new Vector2(this.Rectangle.X + offsetX, this.Rectangle.Y + offsetY + this.Rectangle.Height + 100), this.Color, new Vector2(this.TexCoord.Left, this.TexCoord.Bottom)),
+                new ColorTextureVertex2(new Vector2(this.Rectangle.X + offsetX, this.Rectangle.Y + offsetY), this.Color, new Vector2(this.TexCoord.Left, this.TexCoord.Top)),
+                new ColorTextureVertex2(new Vector2(this.Rectangle.X + offsetX + this.Rectangle.Width, this.Rectangle.Y + offsetY), this.Color, new Vector2(this.TexCoord.Right, this.TexCoord.Top)),
+                new ColorTextureVertex2(new Vector2(this.Rectangle.X + offsetX + this.Rectangle.Width, this.Rectangle.Y + offsetY + this.Rectangle.Height), this.Color, new Vector2(this.TexCoord.Right, this.TexCoord.Bottom)),
+                new ColorTextureVertex2(new Vector2(this.Rectangle.X + offsetX, this.Rectangle.Y + offsetY + this.Rectangle.Height), this.Color, new Vector2(this.TexCoord.Left, this.TexCoord.Bottom)),
             };
 
             _indices = new uint[]
