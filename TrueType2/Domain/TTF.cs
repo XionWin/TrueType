@@ -2,6 +2,7 @@
 using TrueType2.Domain.Cache.Vector;
 using TrueType2.Extension;
 using TrueType2.Mode;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace TrueType2.Domain
 {
@@ -36,7 +37,7 @@ namespace TrueType2.Domain
 
         }
 
-        public TTFBitmap GetGlyph(char c, int size, int blur)
+        public TTFGlyph GetGlyph(char c, int size, int blur)
         {
             var vector = this._cache[this.Name].TryGet(c);
             var canvas = BitmapCache.Instance[this.Name].TryGet(size);
@@ -71,7 +72,20 @@ namespace TrueType2.Domain
 
 
             var bitmap = vector.Rasterize(canvas, renderSize, scale, shift, off);
-            return bitmap;
+
+            var glyph = new TTFGlyph() {
+                Index = index,
+                Size = size,
+                Blur = blur,
+                Scale = scaleValue,
+                Shift = shift,
+                AdvanceWidth = advanceWidth,
+                LeftSideBearing = leftSideBearing,
+                Rect = new Rect(x0, y0, x1 - x0, y1 - y0),
+                Offset = off,
+                Bitmap = bitmap,
+            };
+            return glyph;
         }
 
         public void Dispose()

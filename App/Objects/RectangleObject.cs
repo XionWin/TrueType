@@ -35,7 +35,7 @@ namespace App.Objects
 
         public override void OnLoad(Shader shader)
         {
-            var offsetX = this.Offset.X;
+            var offsetX = 0; // this.Offset.X;
             var offsetY = this.Offset.Y;
 
             // Change vertices data

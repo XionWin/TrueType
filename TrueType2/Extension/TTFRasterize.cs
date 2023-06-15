@@ -58,7 +58,7 @@ namespace TrueType2.Extension
 
             var location = canvas.Location;
             edges!.stbtt__rasterize_sorted_edges(canvas, renderSize, vsubsample, off);
-            var bitmap = new TTFBitmap(canvas, new Rect(location.X, location.Y, renderSize.Width, renderSize.Height), off);
+            var bitmap = new TTFBitmap(canvas, new Rect(location.X, location.Y, renderSize.Width, renderSize.Height));
             canvas.UpdateLocation(renderSize, off);
             return bitmap;
         }

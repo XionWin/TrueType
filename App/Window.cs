@@ -43,33 +43,31 @@ namespace App
 
         protected override void OnLoad()
         {
-            var path = @"Resources/Fonts/SmileySans.ttf";
+            var fontName = "SmileySans";
+            var path = @$"Resources/Fonts/{fontName}.ttf";
 
             if (File.Exists(path))
             {
-                var ttf = new TrueType2.Domain.TTF("SmileySans", path);
+                var ttf = new TrueType2.Domain.TTF(fontName, path);
 
-                Random random = new Random();
                 var fontSize = 24 * 2;
-
                 var x = 0;
                 var y = 100;
-                foreach (var c in "早上好，林女士。Press_Enter_To_Contiune")
+                foreach (var c in "早上好，林老师。Press_Enter_To_Contiune")
                 {
-                    var bitmap = ttf.GetGlyph(c, fontSize, 0);
+                    var glyph = ttf.GetGlyph(c, fontSize, 0);
+                    var bitmap = glyph.Bitmap;
+
                     var color = new Vector4(1, 1, 1, 1);
-                    //var color = new Vector4((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble(), 1);
 
-
-                    var texCoordX = (float)bitmap.Rectangle.X / 512;
-                    var texCoordY = (float)bitmap.Rectangle.Y / 512;
-                    var texCoordWidth = (float)bitmap.Rectangle.Width / 512;
-                    var texCoordHeight = (float)bitmap.Rectangle.Height / 512;
-
+                    var texCoordX = (float)bitmap.TexRect.X / bitmap.Canvas.Size.Width;
+                    var texCoordY = (float)bitmap.TexRect.Y / bitmap.Canvas.Size.Height;
+                    var texCoordWidth = (float)bitmap.TexRect.Width / bitmap.Canvas.Size.Width;
+                    var texCoordHeight = (float)bitmap.TexRect.Height / bitmap.Canvas.Size.Height;
                     var texCoord = new RectangleF(texCoordX, texCoordY, texCoordWidth, texCoordHeight);
 
-                    _renderObjects.Add(new RectangleObject(new Rectangle(x, y, bitmap.Rectangle.Width, bitmap.Rectangle.Height), color, texCoord, new Point(bitmap.Offset.X, bitmap.Offset.Y)));
-                    x += bitmap.Rectangle.Width + 2;
+                    _renderObjects.Add(new RectangleObject(new Rectangle(x, y, glyph.Rect.Width, glyph.Rect.Height), color, texCoord, new Point(glyph.Offset.X, glyph.Offset.Y)));
+                    x += glyph.Rect.Width;
                 }
             }
 

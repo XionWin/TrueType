@@ -10,15 +10,12 @@ namespace TrueType2.Domain
     public class TTFBitmap
     {
         public MonoCanvas Canvas { get; init; }
-        public Rect Rectangle { get; init; }
+        public Rect TexRect { get; init; }
 
-        public Point Offset { get; init; }
-
-        public TTFBitmap(MonoCanvas canvas, Rect rectangle, Point offset)
+        public TTFBitmap(MonoCanvas canvas, Rect texRect)
         {
             Canvas = canvas;
-            Rectangle = rectangle;
-            Offset = offset;
+            TexRect = texRect;
         }
     }
 }
