@@ -13,4 +13,17 @@ public static class SemanticExtension
     public static IEnumerator<T> Loop<T>(this IEnumerator<T> source, Func<T, bool> condition, Action<T> processing) =>
     condition(source.Current) ? source.With(x => processing(x.Current)).With(x => x.MoveNext()).Loop(condition, processing) : source;
 
+    public static void Foreach<T>(this IEnumerable<T> items, Action<T, T?> handle) where T : struct
+    {
+        var current = default(T);
+        T? pervious = null;
+
+        foreach (var item in items)
+        {
+            current = item;
+            handle?.Invoke(current, pervious);
+            pervious = item;
+        }
+    }
+
 }

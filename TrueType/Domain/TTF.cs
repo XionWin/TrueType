@@ -37,7 +37,7 @@ namespace TrueType.Domain
 
         }
 
-        public TTFGlyph GetGlyph(char c, int size, int blur)
+        public TTFGlyph GetGlyph(char c, int size, int blur, char? pervious)
         {
             var vector = this._cache[this.Name].TryGet(c);
             var canvas = BitmapCache.Instance[this.Name].TryGet(size);
@@ -70,6 +70,7 @@ namespace TrueType.Domain
             var xadv = (short)(scaleValue * advanceWidth * 10.0f);
             var off = new Point(x0, y0);
 
+            var kernAdvance = pervious is char ? _raw.GetGlyphKernAdvance(this._raw.GetGlyphIndex((int)pervious), index) : 0;
 
             var bitmap = vector.Rasterize(canvas, renderSize, scale, shift, off);
 
@@ -81,10 +82,13 @@ namespace TrueType.Domain
                 Shift = shift,
                 AdvanceWidth = advanceWidth,
                 LeftSideBearing = leftSideBearing,
+                XAdvanceWidth = xadv,
                 Rect = new Rect(x0, y0, x1 - x0, y1 - y0),
                 Offset = off,
+                KernAdvance = kernAdvance,
                 Bitmap = bitmap,
             };
+
             return glyph;
         }
 

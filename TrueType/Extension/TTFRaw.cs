@@ -206,6 +206,37 @@ namespace TrueType.Extension
             return (ix0, iy0, ix1, iy1);
         }
 
+        internal static int GetGlyphKernAdvance(this TTFRaw raw, int glyph1, int glyph2)
+        {
+            int kern = raw.Table.Kern;
+            int needle, straw;
+            int l, r, m;
+
+            // we only look at the first table. it must be 'horizontal' and format 0.
+            if (!(kern != 0))
+                return 0;
+            if (raw.GetNumber<ushort>(2 + kern) < 1) // number of tables, need at least 1
+                return 0;
+            if (raw.GetNumber<ushort>(8 + kern) != 1) // horizontal flag must be set in format
+                return 0;
+
+            l = 0;
+            r = raw.GetNumber<ushort>(10 + kern) - 1;
+            needle = glyph1 << 16 | glyph2;
+            while (l <= r)
+            {
+                m = (l + r) >> 1;
+                straw = (int)raw.GetNumber<uint>(18 + (m * 6) + kern); // note: unaligned read
+                if (needle < straw)
+                    r = m - 1;
+                else if (needle > straw)
+                    l = m + 1;
+                else
+                    return raw.GetNumber<short>(22 + (m * 6) + kern);
+            }
+            return 0;
+        }
+
         private static (short advanceWidth, short leftSideBearing) GetGlyphHMetrics(this TTFRaw raw, int index)
         {
             var numOfLongHorMetrics = raw.GetNumber<ushort>(raw.Table.Hhea + 34);

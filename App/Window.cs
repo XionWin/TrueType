@@ -53,23 +53,27 @@ namespace App
                 var fontSize = 24 * 2;
                 var x = 0;
                 var y = fontSize;
-                foreach (var c in "早上好，林老师。Press_Enter_To_Contiune")
-                {
-                    var glyph = ttf.GetGlyph(c, fontSize, 0);
-                    var bitmap = glyph.Bitmap;
 
-                    var color = new Vector4(1, 1, 1, 1);
+                "早上好，林老师。Press_Enter_To_Contiune".Foreach(
+                    (c, p) =>
+                    {
+                        var glyph = ttf.GetGlyph(c, fontSize, 0, p);
+                        var bitmap = glyph.Bitmap;
 
-                    var texCoordX = (float)bitmap.TexRect.X / bitmap.Canvas.Size.Width;
-                    var texCoordY = (float)bitmap.TexRect.Y / bitmap.Canvas.Size.Height;
-                    var texCoordWidth = (float)bitmap.TexRect.Width / bitmap.Canvas.Size.Width;
-                    var texCoordHeight = (float)bitmap.TexRect.Height / bitmap.Canvas.Size.Height;
-                    var texCoord = new RectangleF(texCoordX, texCoordY, texCoordWidth, texCoordHeight);
+                        var color = new Vector4(1, 1, 1, 1);
 
-                    // Why can't use the offset x?
-                    _renderObjects.Add(new RectangleObject(new Rectangle(x, y, glyph.Rect.Width, glyph.Rect.Height), color, texCoord, new Point(0, /*glyph.Offset.X,*/ glyph.Offset.Y)));
-                    x += glyph.Rect.Width;
-                }
+                        var texCoordX = (float)bitmap.TexRect.X / bitmap.Canvas.Size.Width;
+                        var texCoordY = (float)bitmap.TexRect.Y / bitmap.Canvas.Size.Height;
+                        var texCoordWidth = (float)bitmap.TexRect.Width / bitmap.Canvas.Size.Width;
+                        var texCoordHeight = (float)bitmap.TexRect.Height / bitmap.Canvas.Size.Height;
+                        var texCoord = new RectangleF(texCoordX, texCoordY, texCoordWidth, texCoordHeight);
+
+                        // Why can't use the offset x?
+                        _renderObjects.Add(new RectangleObject(new Rectangle(x, y, glyph.Rect.Width, glyph.Rect.Height), color, texCoord, new Point(0, /*glyph.Offset.X,*/ glyph.Offset.Y)));
+                        x += glyph.Rect.Width;
+                    }
+                );
+
             }
 
             base.OnLoad();

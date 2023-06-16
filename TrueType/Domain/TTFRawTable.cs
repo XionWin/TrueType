@@ -10,14 +10,16 @@
         private int? _loca = null;
         private int? _name = null;
         private int? _maxp = null;
-        public int Cmap => _camp!.Value;
-        public int Glyf => _glyf!.Value;
-        public int Head => _head!.Value;
-        public int Hhea => _hhea!.Value;
-        public int Hmtx => _hmtx!.Value;
-        public int Loca => _loca!.Value;
-        public int Name => _name!.Value;
-        public int Maxp => _maxp!.Value;
+        private int? _kern = null;
+        public int Cmap => _camp ?? 0;
+        public int Glyf => _glyf ?? 0;
+        public int Head => _head  ?? 0;
+        public int Hhea => _hhea ?? 0;
+        public int Hmtx => _hmtx ?? 0;
+        public int Loca => _loca ?? 0;
+        public int Name => _name ?? 0;
+        public int Maxp => _maxp ?? 0;
+        public int Kern => _kern ?? 0;
 
         public TTFRawTable(Dictionary<string, uint> table)
         {
@@ -29,6 +31,7 @@
             _loca = table.ContainsKey("loca") ? (int)table["loca"] : null;
             _name = table.ContainsKey("name") ? (int)table["name"] : null;
             _maxp = table.ContainsKey("maxp") ? (int)table["maxp"] : null;
+            _kern = table.ContainsKey("kern") ? (int)table["kern"] : null;
         }
     }
 }
