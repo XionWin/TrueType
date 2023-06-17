@@ -6,6 +6,7 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Drawing;
+using TrueType.Domain;
 using TrueType.Domain.Cache.Pixel;
 
 namespace App
@@ -62,10 +63,10 @@ namespace App
 
                         var color = new Vector4(1, 1, 1, 1);
 
-                        var texCoordX = (float)bitmap.TexRect.X / bitmap.Canvas.Size.Width;
-                        var texCoordY = (float)bitmap.TexRect.Y / bitmap.Canvas.Size.Height;
-                        var texCoordWidth = (float)bitmap.TexRect.Width / bitmap.Canvas.Size.Width;
-                        var texCoordHeight = (float)bitmap.TexRect.Height / bitmap.Canvas.Size.Height;
+                        var texCoordX = (float)bitmap.TexRect.X / MonoCanvas.Instance.Size.Width;
+                        var texCoordY = (float)bitmap.TexRect.Y / MonoCanvas.Instance.Size.Height;
+                        var texCoordWidth = (float)bitmap.TexRect.Width / MonoCanvas.Instance.Size.Width;
+                        var texCoordHeight = (float)bitmap.TexRect.Height / MonoCanvas.Instance.Size.Height;
                         var texCoord = new RectangleF(texCoordX, texCoordY, texCoordWidth, texCoordHeight);
 
                         // Why can't use the offset x?
@@ -103,11 +104,7 @@ namespace App
 
             //_texture = new Texture(TextureUnit.Texture0, TextureMinFilter.Nearest).With(x => x.LoadRaw(TrueType.Cache.Instance.Pixels, w, h, PixelFormat.Alpha, PixelInternalFormat.Rgba));
 
-            var fontBitmapCache = BitmapCache.Instance.First().Value;
-
-            var canvases = BitmapCache.Instance.Values.SelectMany(x => x.Values).ToArray();
-
-            var canvas = canvases[DateTime.Now.Second % canvases.Count()];
+            var canvas = MonoCanvas.Instance;
 
             _texture = new Texture(TextureUnit.Texture0, TextureMinFilter.Nearest).With(x => x.LoadRaw(canvas.Pixels, canvas.Size.Width, canvas.Size.Height, PixelFormat.Alpha, PixelInternalFormat.Rgba));
 

@@ -4,7 +4,7 @@ namespace TrueType.Domain
 {
     public class TTFGlyph
     {
-        public int Index { get; set; }
+        public char Character { get; set; }
         public int Size { get; set; }
         public int Blur { get; set; }
         public float Scale { get; set; }

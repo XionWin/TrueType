@@ -1,20 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using TrueType.Domain.Cache.Pixel;
 using TrueType.Mode;
 
 namespace TrueType.Domain
 {
     public class TTFBitmap
     {
-        public MonoCanvas Canvas { get; init; }
+        public char Character { get; set; }
+        public int Size { get; set; }
         public Rect TexRect { get; init; }
 
-        public TTFBitmap(MonoCanvas canvas, Rect texRect)
+        public TTFBitmap(char character, int fontSize, Rect texRect)
         {
-            Canvas = canvas;
+            Character = character;
+            Size = fontSize;
             TexRect = texRect;
         }
     }

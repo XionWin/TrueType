@@ -6,10 +6,12 @@ namespace TrueType.Domain
 {
     public class TTFVector
     {
+        public char Character { get; set; }
         public Vertex[] Vertices { get; set; }
 
-        public TTFVector(Vertex[] vertices) 
+        public TTFVector(char character, Vertex[] vertices) 
         {
+            Character = character;
             Vertices = vertices;
         }
 

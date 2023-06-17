@@ -2,7 +2,6 @@
 using TrueType.Domain.Cache.Vector;
 using TrueType.Extension;
 using TrueType.Mode;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace TrueType.Domain
 {
@@ -23,9 +22,6 @@ namespace TrueType.Domain
                 _cache.Add(name, new FontCache(new TTFRaw(name, File.ReadAllBytes(path))));
 
 
-            if (BitmapCache.Instance.ContainsKey(name) is false)
-                BitmapCache.Instance.Add(name, new FontBitmapCache(name));
-
             this._raw = _cache[name].Raw is TTFRaw ttfRaw ? ttfRaw : throw new ArgumentException();
 
             var lineGap = 0;
@@ -37,14 +33,12 @@ namespace TrueType.Domain
 
         }
 
-        public TTFGlyph GetGlyph(char c, int size, int blur, char? pervious)
+        public TTFGlyph GetGlyph(char character, int size, int blur, char? pervious)
         {
-            var vector = this._cache[this.Name].TryGet(c);
-            var canvas = BitmapCache.Instance[this.Name].TryGet(size);
-
+            var vector = this._cache[this.Name].TryGet(character);
 
             // Find code point and size.
-            var h = TTFExtension.HashInt(c) & (Consts.FONS_HASH_LUT_SIZE - 1);
+            var h = TTFExtension.HashInt(character) & (Consts.FONS_HASH_LUT_SIZE - 1);
 
             if (size < 2)
                 throw new Exception("Unsupported size");
@@ -55,11 +49,11 @@ namespace TrueType.Domain
             var scaleValue = this._raw.GetPixelHeightScale(size);
             var scale = new PointF(scaleValue, scaleValue);
 
-            var shift = new PointF();
+            var shift = new PointF(); 
 
-            var index = this._raw.GetGlyphIndex((int)c);
+            var index = this._raw.GetGlyphIndex((int)character);
             var (advanceWidth, leftSideBearing, x0, y0, x1, y1) = this._raw.BuildGlyphBoxSettings(index, size, scale, shift);
-
+             
             var renderSize = new Size(x1 - x0, y1 - y0);
             var glyphSize = new Size(renderSize.Width + pad * 2, renderSize.Height + pad * 2);
 
@@ -72,10 +66,10 @@ namespace TrueType.Domain
 
             var kernAdvance = pervious is char ? _raw.GetGlyphKernAdvance(this._raw.GetGlyphIndex((int)pervious), index) : 0;
 
-            var bitmap = vector.Rasterize(canvas, renderSize, scale, shift, off);
+            var bitmap = vector.Rasterize(size, renderSize, scale, shift, off);
 
             var glyph = new TTFGlyph() {
-                Index = index,
+                Character = character,
                 Size = size,
                 Blur = blur,
                 Scale = scaleValue,

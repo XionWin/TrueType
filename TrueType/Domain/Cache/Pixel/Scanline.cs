@@ -8,6 +8,9 @@ namespace TrueType.Domain.Cache.Pixel
 {
     internal class Scanline
     {
+        private Scanline() { }
+        private static Scanline _Instance = new Scanline();
+        public static Scanline Instance = _Instance;
         public byte[]? Data { get; set; }
 
         public byte[] Request(int len)

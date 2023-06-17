@@ -44,7 +44,7 @@ namespace TrueType.Extension
 
     internal static class TTFRasterize
     {
-        internal static TTFBitmap Rasterize(this TTFVector vector, MonoCanvas canvas, Size renderSize, PointF scale, PointF shift, Point off)
+        internal static TTFBitmap Rasterize(this TTFVector vector, int size, Size renderSize, PointF scale, PointF shift, Point off)
         {
             var flatness_in_pixels = 0.35f;
             int vsubsample = renderSize.Height < 8 ? 15 : 5;
@@ -54,12 +54,13 @@ namespace TrueType.Extension
 
             var edges = windings!.stbtt__rasterize(vsubsample, scale, shift, off, true);
 
-            canvas.TryLocate(renderSize, off);
+            var canvas = MonoCanvas.Instance;
+            canvas.TryLocate(renderSize, size);
 
             var location = canvas.Location;
             edges!.stbtt__rasterize_sorted_edges(canvas, renderSize, vsubsample, off);
-            var bitmap = new TTFBitmap(canvas, new Rect(location.X, location.Y, renderSize.Width, renderSize.Height));
-            canvas.UpdateLocation(renderSize, off);
+            var bitmap = new TTFBitmap(vector.Character, size, new Rect(location.X, location.Y, renderSize.Width, renderSize.Height));
+            canvas.UpdateLocation(renderSize, size);
             return bitmap;
         }
 
@@ -69,7 +70,7 @@ namespace TrueType.Extension
 
             // int y, j = 0, eIndex = 0;
             int max_weight = (255 / vsubsample);        // weight per vertical scanline
-            var scanline = BitmapCache.Instance.Scanline.Request(renderSize.Width);
+            var scanline = Scanline.Instance.Request(renderSize.Width);
 
 
             var y = off.Y * vsubsample;
@@ -170,7 +171,7 @@ namespace TrueType.Extension
 
                 //Array.Copy(scanline, 0, canvas.Pixels, 0 + offset + offsetH * canvas.Height + (j * canvas.Width), renderSize.Width);
 
-                canvas.DrawScanline(BitmapCache.Instance.Scanline, lineIndex, renderSize);
+                canvas.DrawScanline(Scanline.Instance, lineIndex, renderSize);
 
                 ++lineIndex;
 

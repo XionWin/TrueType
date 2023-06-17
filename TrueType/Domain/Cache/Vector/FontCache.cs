@@ -4,7 +4,7 @@ using TrueType.Extension;
 
 namespace TrueType.Domain.Cache.Vector
 {
-    internal class FontCache : Dictionary<int, TTFVector>
+    internal class FontCache : Dictionary<char, TTFVector>
     {
         public string FontName => this.Raw.Name;
         public TTFRaw Raw { get; private set; }
@@ -13,10 +13,10 @@ namespace TrueType.Domain.Cache.Vector
             Raw = raw;
         }
 
-        public TTFVector TryGet(char c) =>
-            Raw.GetGlyphIndex(c) is var index && ContainsKey(index) ?
-                this[index]
-                : Raw.GetVector(index).With(x => Add(index, x));
+        public TTFVector TryGet(char character) =>
+            ContainsKey(character) ?
+                this[character] :
+                Raw.GetVector(character).With(x => Add(character, x));
     }
 
 }

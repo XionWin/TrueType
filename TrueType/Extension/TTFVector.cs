@@ -5,8 +5,10 @@ namespace TrueType.Extension
 {
     public static class TTTFVectorExtension
     {
-        public static TTFVector GetVector(this TTFRaw raw, int index) =>
-            new TTFVector(raw.GetShape(index));
+        public static TTFVector GetVector(this TTFRaw raw, char character) =>
+            raw.GetGlyphIndex(character) is var index ?
+            new TTFVector(character, raw.GetShape(index)) :
+            throw new ArgumentException();
 
         public static Vertex[] GetShape(this TTFRaw raw, int index)
         {
