@@ -10,7 +10,8 @@ namespace TrueType.Domain
         public string Name { get; set; } 
         public string Path { get; set; }
 
-        private Cache.Vector.Cache _cache = Cache.Vector.Cache.Instance;
+        private Cache.Vector.Cache _vectorCache = Cache.Vector.Cache.Instance;
+        private TTFAtlas _atlas = TTFAtlas.Instance;
         private TTFRaw _raw;
 
         public TTF(string name, string path)
@@ -18,11 +19,11 @@ namespace TrueType.Domain
             Name = name;
             Path = path;
 
-            if (_cache.ContainsKey(name) is false)
-                _cache.Add(name, new FontCache(new TTFRaw(name, File.ReadAllBytes(path))));
+            if (_vectorCache.ContainsKey(name) is false)
+                _vectorCache.Add(name, new FontCache(new TTFRaw(name, File.ReadAllBytes(path))));
 
 
-            this._raw = _cache[name].Raw is TTFRaw ttfRaw ? ttfRaw : throw new ArgumentException();
+            this._raw = _vectorCache[name].Raw is TTFRaw ttfRaw ? ttfRaw : throw new ArgumentException();
 
             var lineGap = 0;
             var vMetrics = this._raw.GetFontVMetrics();
@@ -35,7 +36,7 @@ namespace TrueType.Domain
 
         public TTFGlyph GetGlyph(char character, int size, int blur, char? pervious)
         {
-            var vector = this._cache[this.Name].TryGet(character);
+            var vector = this._vectorCache[this.Name].TryGet(character);
 
             // Find code point and size.
             var h = TTFExtension.HashInt(character) & (Consts.FONS_HASH_LUT_SIZE - 1);
@@ -88,7 +89,7 @@ namespace TrueType.Domain
 
         public void Dispose()
         {
-            this._cache.Clear();
+            this._vectorCache.Clear();
         }
     }
 }
