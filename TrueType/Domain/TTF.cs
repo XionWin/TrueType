@@ -72,6 +72,7 @@ namespace TrueType.Domain
             var glyph = new TTFGlyph() {
                 Character = character,
                 Size = size,
+                Index = index,
                 Blur = blur,
                 Scale = scaleValue,
                 Shift = shift,

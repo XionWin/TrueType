@@ -6,6 +6,7 @@ namespace TrueType.Domain
     {
         public char Character { get; set; }
         public int Size { get; set; }
+        public int Index { get; set; }
         public int Blur { get; set; }
         public float Scale { get; set; }
         public PointF Shift { get; set; }

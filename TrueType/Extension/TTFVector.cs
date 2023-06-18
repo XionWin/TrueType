@@ -1,335 +1,351 @@
 ﻿using TrueType.Domain;
+using TrueType.Domain.Cache.Pixel;
 using TrueType.Mode;
+using TrueType.Support;
 
 namespace TrueType.Extension
 {
     public static class TTTFVectorExtension
     {
-        public static TTFVector GetVector(this TTFRaw raw, char character) =>
-            raw.GetGlyphIndex(character) is var index ?
-            new TTFVector(character, raw.GetShape(index)) :
-            throw new ArgumentException();
+        const int FIXSHIFT = 10;
+        const int FIX = (1 << FIXSHIFT);
+        const int FIXMASK = (FIX - 1);
 
-        public static Vertex[] GetShape(this TTFRaw raw, int index)
+        internal static TTFBitmap Rasterize(this TTFVector vector, int size, Size renderSize, PointF scale, PointF shift, Point off)
         {
-            var offset = raw.GetGlyphOffset(index);
-            short numberOfContours = raw.GetNumber<short>(offset);
+            var flatness_in_pixels = 0.35f;
+            int vsubsample = renderSize.Height < 8 ? 15 : 5;
+            var windings = vector.FlattenCurves(flatness_in_pixels / Math.Min(scale.X, scale.Y));
 
-            return numberOfContours switch
-            {
-                0 => throw new ArgumentException(),    // Do nothing.
-                > 0 => raw.GetSimpleShape(offset, numberOfContours, index),
-                < 0 => raw.GetCompositeShape(offset, numberOfContours, index),     // Composite Glyph == -1
-            };
+            var data = System.Text.Json.JsonSerializer.Serialize(windings);
+
+            var edges = windings!.stbtt__rasterize(vsubsample, scale, shift, off, true);
+            var pixels = edges!.stbtt__rasterize_sorted_edges(renderSize, vsubsample, off);
+
+            var bitmap = MonoCanvas.Instance.LocateCharacter(vector.Character, size, pixels, renderSize, size);
+            return bitmap;
         }
-
-        private static Vertex[] GetSimpleShape(this TTFRaw raw, int offset, int numberOfContours, int index)
+        private static PointF[][]? FlattenCurves(this TTFVector vector, float objspace_flatness)
         {
-            int iData = offset + 10;
+            var vertices = vector.Vertices;
+            var objspace_flatness_pow_2 = (float)Math.Pow(objspace_flatness, 2);
 
-            var ins = raw.GetNumber<short>(iData + numberOfContours * 2);
+            var pointsList = new List<PointF[]>();
+            List<PointF>? currentPoints = null;
 
-            int iPoints = iData + numberOfContours * 2 + 2 + ins;
-
-            var n = 1 + raw.GetNumber<ushort>(numberOfContours * 2 - 2 + iData);
-            var off = 2 * numberOfContours;
-            var m = n + off;
-            var vertices = new Vertex[m];
-            // first load flags
-            var flagcount = 0;
-            var points = raw.Data;
-            byte flags = 0;
-            for (var i = 0; i < n; ++i)
+            float x = 0, y = 0;
+            for (var i = 0; i < vertices.Length; ++i)
             {
-                if (flagcount == 0)
+                switch (vertices[i].Type)
                 {
-                    flags = points[iPoints++];
-                    if ((flags & 8) != 0)
-                        flagcount = points[iPoints++];
-                }
-                else
-                    --flagcount;
-                vertices[off + i].Type = (VertexType)flags;
-            }
-
-            // now load x coordinates
-            var x = 0;
-            for (var i = 0; i < n; ++i)
-            {
-                flags = (byte)vertices[off + i].Type;
-                if ((flags & 2) != 0)
-                {
-                    short dx = points[iPoints++];
-                    x += (flags & 16) != 0 ? dx : -dx; // ???
-                }
-                else
-                {
-                    if (!((flags & 16) != 0))
-                    {
-                        x = x + (short)((points[0 + iPoints] * 256) + points[1 + iPoints]);
-                        iPoints += 2;
-                    }
-                }
-                vertices[off + i].X = (short)x;
-            }
-
-
-            // now load y coordinates
-            var y = 0;
-            for (var i = 0; i < n; ++i)
-            {
-                flags = (byte)vertices[off + i].Type;
-                if ((flags & 4) != 0)
-                {
-                    short dy = points[iPoints++];
-                    y += (flags & 32) != 0 ? dy : -dy; // ???
-                }
-                else
-                {
-                    if (!((flags & 32) != 0))
-                    {
-                        y = y + (short)((points[0 + iPoints] * 256) + points[1 + iPoints]);
-                        iPoints += 2;
-                    }
-                }
-                vertices[off + i].Y = (short)y;
-            }
-
-
-            // now convert them to our format
-            var num_vertices = 0;
-
-            int cx, cy, sx, sy, scx, scy;
-            sx = sy = cx = cy = scx = scy = 0;
-            var next_move = 0;
-            var was_off = 0;
-            var start_off = 0;
-            var j = 0;
-
-            for (var i = 0; i < n; ++i)
-            {
-                flags = (byte)vertices[off + i].Type;
-                x = (short)vertices[off + i].X;
-                y = (short)vertices[off + i].Y;
-
-                if (next_move == i)
-                {
-                    if (i != 0)
-                        num_vertices = VertexsCloseShape(vertices, num_vertices, was_off, start_off, sx, sy, scx, scy, cx, cy);
-
-                    // now start the new one               
-                    start_off = 0 == (flags & 1) ? 1 : 0;
-                    if (start_off != 0)
-                    {
-                        // if we start off with an off-curve point, then when we need to find a point on the curve
-                        // where we can start, and we need to save some state for when we wraparound.
-                        scx = x;
-                        scy = y;
-                        if (!(((int)vertices[off + i + 1].Type & 1) != 0))
+                    case VertexType.MoveTo:
+                        // start the next contour
+                        if (currentPoints is not null)
                         {
-                            // next point is also a curve point, so interpolate an on-point curve
-                            sx = (x + (int)vertices[off + i + 1].X) >> 1;
-                            sy = (y + (int)vertices[off + i + 1].Y) >> 1;
+                            pointsList.Add(currentPoints.ToArray());
                         }
-                        else
+                        currentPoints = new List<PointF>();
+
+                        x = vertices[i].X;
+                        y = vertices[i].Y;
+                        currentPoints.Add(new PointF(x, y));
+                        break;
+                    case VertexType.LineTo:
+                        x = vertices[i].X;
+                        y = vertices[i].Y;
+                        currentPoints!.Add(new PointF(x, y));
+                        break;
+                    case VertexType.CurveTo:
+                        currentPoints!.stbtt__tesselate_curve(x, y,
+                            vertices[i].CenterX, vertices[i].CenterY,
+                            vertices[i].X, vertices[i].Y, objspace_flatness_pow_2);
+                        x = vertices[i].X;
+                        y = vertices[i].Y;
+                        break;
+                }
+            }
+            if (currentPoints is not null)
+            {
+                pointsList.Add(currentPoints.ToArray());
+            }
+            return pointsList.ToArray();
+        }
+        private static TTFEdge[]? stbtt__rasterize(this PointF[][] windings, int vsubsample, PointF scale, PointF shift, Point off, bool isInvented)
+        {
+            float y_scale_inv = isInvented ? -scale.Y : scale.Y;
+            // vsubsample should divide 255 evenly; otherwise we won't reach full opacity
+
+            //e = (stbtt__edge) STBTT_malloc(sizeof(*e) * (n+1), userdata); // add an extra one as a sentinel
+            var edges = new List<TTFEdge>();
+
+            for (int i = 0; i < windings.Length; i++)
+            {
+                var points = windings[i];
+
+                for (int j = 1; j < points.Length; j++)
+                {
+                    var p0 = points[j];
+                    var p1 = points[j - 1];
+
+                    // skip the edge if horizontal
+                    if (p0.Y == p1.Y)
+                        continue;
+
+                    var inventedFlag = false;
+
+                    if (isInvented)
+                    {
+                        if (p1.Y > p0.Y)
                         {
-                            // otherwise just use the next point as our start point
-                            sx = (int)vertices[off + i + 1].X;
-                            sy = (int)vertices[off + i + 1].Y;
-                            ++i; // we're using point i+1 as the starting point, so skip it
+                            inventedFlag = true;
+                            var temp = p0;
+                            p0 = p1;
+                            p1 = temp;
                         }
                     }
                     else
                     {
-                        sx = x;
-                        sy = y;
+                        if (p0.Y < p1.Y)
+                        {
+                            inventedFlag = true;
+                            var temp = p0;
+                            p0 = p1;
+                            p1 = temp;
+                        }
                     }
-                    SetVertex(ref vertices[num_vertices++], num_vertices, VertexType.MoveTo, sx, sy, 0, 0);
-                    was_off = 0;
-                    next_move = 1 + raw.GetNumber<ushort>(iData + j * 2);
-                    ++j;
+
+                    var edge = new TTFEdge();
+                    edge.P0 = new PointF(p0.X * scale.X + shift.X,
+                                    p0.Y * y_scale_inv * vsubsample + shift.Y);
+                    edge.P1 = new PointF(p1.X * scale.X + shift.X,
+                                    p1.Y * y_scale_inv * vsubsample + shift.Y);
+                    edge.IsInvented = inventedFlag;
+                    edges.Add(edge);
                 }
-                else
+            }
+            edges.Sort();
+
+            return edges.ToArray();
+        }
+
+        static byte[] stbtt__rasterize_sorted_edges(this TTFEdge[] edges, Size renderSize, int vsubsample, Point off)
+        {
+            var result = new byte[renderSize.Width * renderSize.Height];
+
+            var activeIsNext = new TTFActiveEdge();
+
+            // int y, j = 0, eIndex = 0;
+            int max_weight = (255 / vsubsample);        // weight per vertical scanline
+            var scanline = Scanline.Instance.Request(renderSize.Width);
+
+
+            var y = off.Y * vsubsample;
+
+            edges = edges.Append(new TTFEdge(new PointF(0, (off.Y + renderSize.Height) * (float)vsubsample + 1), new PointF(), false)).ToArray();
+
+            var lineIndex = 0;
+            var eIndex = 0;
+
+            byte[,] scanlines = new byte[renderSize.Height, renderSize.Width];
+
+            while (lineIndex < renderSize.Height)
+            {
+                Array.Clear(scanline, 0, scanline.Length);
+                // vertical subsample index
+                for (var s = 0; s < vsubsample; ++s)
                 {
-                    if (!((flags & 1) != 0))
-                    { // if it's a curve
-                        if (was_off != 0) // two off-curve control points in a row means interpolate an on-curve midpoint
-                            SetVertex(ref vertices[num_vertices++], num_vertices, VertexType.CurveTo, (cx + x) >> 1, (cy + y) >> 1, cx, cy);
-                        cx = x;
-                        cy = y;
-                        was_off = 1;
-                    }
-                    else
+                    // find center of pixel for this scanline
+                    float scan_y = y + 0.5f;
+                    TTFActiveEdge stepIsNext = activeIsNext;
+
+                    // update all active edges;
+                    // remove all active edges that terminate before the center of this scanline
+                    while (stepIsNext.Next is not null)
                     {
-                        if (was_off != 0)
-                            SetVertex(ref vertices[num_vertices++], num_vertices, VertexType.CurveTo, x, y, cx, cy);
+                        var z = stepIsNext.Next;
+                        if (z.EY <= scan_y)
+                        {
+                            stepIsNext.Next = z.Next; // delete from list
+                            z.Valid = 0;
+                        }
                         else
-                            SetVertex(ref vertices[num_vertices++], num_vertices, VertexType.LineTo, x, y, 0, 0);
-                        was_off = 0;
+                        {
+                            z.X += z.DX; // advance to position for current scanline
+                            stepIsNext = stepIsNext.Next; // advance through list
+                        }
                     }
+
+                    for (; ; )
+                    {
+                        bool changed = false;
+                        stepIsNext = activeIsNext;
+                        while (stepIsNext.Next != null && stepIsNext.Next.Next != null)
+                        {
+                            if (stepIsNext.Next.X > stepIsNext.Next.Next.X)
+                            {
+                                TTFActiveEdge t = stepIsNext.Next;
+                                TTFActiveEdge q = t.Next;
+
+                                t.Next = q.Next;
+                                q.Next = t;
+                                stepIsNext.Next = q;
+                                changed = true;
+                            }
+                            stepIsNext = stepIsNext.Next;
+                        }
+                        if (!changed)
+                            break;
+                    }
+
+                    // insert all edges that start before the center of this scanline -- omit ones that also end on this scanline
+                    while (edges[eIndex].P0.Y <= scan_y)
+                    {
+                        if (edges[eIndex].P1.Y > scan_y)
+                        {
+                            TTFActiveEdge z = edges[eIndex].new_active(off.X, scan_y);
+                            // find insertion point
+                            if (activeIsNext.Next == null)
+                                activeIsNext.Next = z;
+                            else if (z.X < activeIsNext.Next.X)
+                            {
+                                // insert at front
+                                z.Next = activeIsNext.Next;
+                                activeIsNext.Next = z;
+                            }
+                            else
+                            {
+                                // find thing to insert AFTER
+                                var p = activeIsNext.Next;
+                                while (p.Next != null && p.Next.X < z.X)
+                                    p = p.Next;
+                                // at this point, p->next->x is NOT < z->x
+                                z.Next = p.Next;
+                                p.Next = z;
+                            }
+                        }
+                        ++eIndex;
+                    }
+
+                    // now process all active edges in XOR fashion
+                    if (activeIsNext.Next != null)
+                        stbtt__fill_active_edges(scanline, renderSize.Width, activeIsNext.Next, max_weight);
+
+                    ++y;
                 }
+
+                Array.Copy(scanline, 0, result, lineIndex * renderSize.Width, renderSize.Width);
+
+                ++lineIndex;
             }
 
-            num_vertices = VertexsCloseShape(vertices, num_vertices, was_off, start_off, sx, sy, scx, scy, cx, cy);
-            return vertices.Take(num_vertices).ToArray();
+            return result;
         }
 
-        private static Vertex[] GetCompositeShape(this TTFRaw raw, int offset, int numberOfContours, int index)
+        private static int stbtt__tesselate_curve(this List<PointF> points, float x0, float y0, float x1, float y1, float x2, float y2, float objspace_flatness_squared, int n = 0)
         {
-            int more = 1;
-            byte[] compositeData = raw.Data;
-            int iCompositeData = offset + 10;
-            var num_vertices = 0;
-            Vertex[]? vertices = null;
-
-            while (more != 0)
+            // midpoint
+            float mx = (x0 + 2 * x1 + x2) / 4;
+            float my = (y0 + 2 * y1 + y2) / 4;
+            // versus directly drawn line
+            float dx = (x0 + x2) / 2 - mx;
+            float dy = (y0 + y2) / 2 - my;
+            if (n > 16) // 65536 segments on one curve better be enough!
+                return 1;
+            if (dx * dx + dy * dy > objspace_flatness_squared)
             {
-                ushort flags, gidx;
-                int comp_num_verts = 0, i;
-                Vertex[]? comp_verts = null, tmp = null;
-                float[] mtx = { 1, 0, 0, 1, 0, 0 };
-                float m, n;
-
-                flags = raw.GetNumber<ushort>(iCompositeData);
-                iCompositeData += 2;
-                gidx = raw.GetNumber<ushort>(iCompositeData);
-                iCompositeData += 2;
-
-                if ((flags & 2) != 0)
-                { // XY values
-                    if ((flags & 1) != 0)
-                    { // shorts
-                        mtx[4] = raw.GetNumber<short>(iCompositeData);
-                        iCompositeData += 2;
-                        mtx[5] = raw.GetNumber<short>(iCompositeData);
-                        iCompositeData += 2;
-                    }
-                    else
-                    {
-                        mtx[4] = raw.GetNumber<short>(iCompositeData);
-                        iCompositeData += 1;
-                        mtx[5] = raw.GetNumber<short>(iCompositeData);
-                        iCompositeData += 1;
-                    }
-                }
-                else
-                {
-                    // @TODO handle matching point
-                    throw new NotImplementedException();
-                }
-                if ((flags & (1 << 3)) != 0)
-                { // WE_HAVE_A_SCALE
-                    mtx[0] = mtx[3] = raw.GetNumber<short>(iCompositeData) / 16384.0f;
-                    iCompositeData += 2;
-                    mtx[1] = mtx[2] = 0;
-                }
-                else if ((flags & (1 << 6)) != 0)
-                { // WE_HAVE_AN_X_AND_YSCALE
-                    mtx[0] = raw.GetNumber<short>(iCompositeData) / 16384.0f;
-                    iCompositeData += 2;
-                    mtx[1] = mtx[2] = 0;
-                    mtx[3] = raw.GetNumber<short>(iCompositeData) / 16384.0f;
-                    iCompositeData += 2;
-                }
-                else if ((flags & (1 << 7)) != 0)
-                { // WE_HAVE_A_TWO_BY_TWO
-                    mtx[0] = raw.GetNumber<short>(iCompositeData) / 16384.0f;
-                    iCompositeData += 2;
-                    mtx[1] = raw.GetNumber<short>(iCompositeData) / 16384.0f;
-                    iCompositeData += 2;
-                    mtx[2] = raw.GetNumber<short>(iCompositeData) / 16384.0f;
-                    iCompositeData += 2;
-                    mtx[3] = raw.GetNumber<short>(iCompositeData) / 16384.0f;
-                    iCompositeData += 2;
-                }
-
-                // Find transformation scales.
-                m = (float)Math.Sqrt(mtx[0] * mtx[0] + mtx[1] * mtx[1]);
-                n = (float)Math.Sqrt(mtx[2] * mtx[2] + mtx[3] * mtx[3]);
-
-                // Get indexed glyph.
-                comp_verts = raw.GetShape(gidx);
-                comp_num_verts = comp_verts?.Length ?? 0;
-                if (comp_num_verts > 0)
-                {
-                    // Transform vertices.
-                    for (i = 0; i < comp_num_verts; ++i)
-                    {
-                        Vertex v = comp_verts![i];
-                        short x, y; // stbtt_vertex_type = short;
-                        x = v.X;
-                        y = v.Y;
-                        v.X = (short)(m * (mtx[0] * x + mtx[2] * y + mtx[4]));
-                        v.Y = (short)(n * (mtx[1] * x + mtx[3] * y + mtx[5]));
-                        x = v.CenterX;
-                        y = v.CenterY;
-                        v.CenterX = (short)(m * (mtx[0] * x + mtx[2] * y + mtx[4]));
-                        v.CenterY = (short)(n * (mtx[1] * x + mtx[3] * y + mtx[5]));
-                    }
-
-                    // Append vertices.
-                    //tmp = (stbtt_vertex*)STBTT_malloc((num_vertices+comp_num_verts)*sizeof(stbtt_vertex), info->userdata);
-                    tmp = new Vertex[num_vertices + comp_num_verts];
-                    if (tmp == null)
-                    {
-                        //if (vertices) STBTT_free(vertices, info->userdata);
-                        //if (comp_verts) STBTT_free(comp_verts, info->userdata);
-                        throw new ArgumentException();
-                    }
-                    if (num_vertices > 0)
-                        //memcpy(tmp, vertices, num_vertices*sizeof(stbtt_vertex));
-                        Array.Copy(vertices!, tmp, num_vertices);
-                    //memcpy(tmp+num_vertices, comp_verts, comp_num_verts*sizeof(stbtt_vertex));
-                    Array.Copy(comp_verts!, 0, tmp, num_vertices, comp_num_verts);
-                    //if (vertices) 
-                    //	STBTT_free(vertices, info->userdata);
-                    vertices = tmp;
-                    //STBTT_free(comp_verts, info->userdata);
-                    num_vertices += comp_num_verts;
-                }
-                // More components ?
-                more = flags & (1 << 5);
-            }
-            return vertices!;
-        }
-
-
-        private static int VertexsCloseShape(Vertex[] vertices, int num_vertices, int was_off, int start_off,
-                                    int sx, int sy, int scx, int scy, int cx, int cy)
-        {
-            if (start_off != 0)
-            {
-                if (was_off != 0)
-                    SetVertex(ref vertices[num_vertices++], num_vertices,
-                        VertexType.CurveTo, (cx + scx) >> 1, (cy + scy) >> 1, cx, cy);
-                SetVertex(ref vertices[num_vertices++], num_vertices,
-                    VertexType.CurveTo, sx, sy, scx, scy);
+                // half-pixel error allowed... need to be smaller if AA
+                stbtt__tesselate_curve(points, x0, y0, (x0 + x1) / 2.0f, (y0 + y1) / 2.0f, mx, my, objspace_flatness_squared, n + 1);
+                stbtt__tesselate_curve(points, mx, my, (x1 + x2) / 2.0f, (y1 + y2) / 2.0f, x2, y2, objspace_flatness_squared, n + 1);
             }
             else
             {
-                if (was_off != 0)
-                    SetVertex(ref vertices[num_vertices++], num_vertices,
-                        VertexType.CurveTo, sx, sy, cx, cy);
-                else
-                    SetVertex(ref vertices[num_vertices++], num_vertices,
-                        VertexType.LineTo, sx, sy, 0, 0);
+                points.Add(new PointF(x2, y2));
             }
-            return num_vertices;
+            return 1;
         }
 
-        private static void SetVertex(ref Vertex v, int numVert, VertexType type, int x, int y, int cx, int cy)
+        private static TTFActiveEdge new_active(this TTFEdge edge, int off_x, float start_point)
         {
-            if (numVert == 15)
-            {
-                numVert = 15;
-            }
-
-            v.Type = type;
-            v.X = (short)x;
-            v.Y = (short)y;
-            v.CenterX = (short)cx;
-            v.CenterY = (short)cy;
+            //stbtt__active_edge z = (stbtt__active_edge *) STBTT_malloc(sizeof(*z), userdata); // @TODO: make a pool of these!!!
+            var z = new TTFActiveEdge();
+            float dxdy = (edge.P1.X - edge.P0.X) / (edge.P1.Y - edge.P0.Y);
+            //STBTT_assert(e->y0 <= start_point);
+            if (z == null)
+                throw new ArgumentException();
+            // round dx down to avoid going too far
+            if (dxdy < 0)
+                z.DX = -(int)Math.Floor(FIX * -dxdy);
+            else
+                z.DX = (int)Math.Floor(FIX * dxdy);
+            z.X = (int)Math.Floor(FIX * (edge.P0.X + dxdy * (start_point - edge.P0.Y)));
+            z.X -= off_x * FIX;
+            z.EY = edge.P1.Y;
+            z.Next = null;
+            z.Valid = edge.IsInvented ? 1 : -1;
+            return z;
         }
 
+        private static void stbtt__fill_active_edges(byte[] scanline, int len, TTFActiveEdge? edge, int max_weight)
+        {
+            byte ab = 0;
+            // non-zero winding fill
+            int x0 = 0, w = 0;
+
+            while (edge != null)
+            {
+                if (w == 0)
+                {
+                    // if we're currently at zero, we need to record the edge start point
+                    x0 = edge.X;
+                    w += edge.Valid;
+                }
+                else
+                {
+                    int x1 = edge.X;
+                    w += edge.Valid;
+                    // if we went to zero, we need to draw
+                    if (w == 0)
+                    {
+                        int i = x0 >> FIXSHIFT;
+                        int j = x1 >> FIXSHIFT;
+
+                        if (i < len && j >= 0)
+                        {
+                            if (i == j)
+                            {
+                                // x0,x1 are the same pixel, so compute combined coverage
+                                ab = (byte)(scanline[i] + (byte)((x1 - x0) * max_weight >> FIXSHIFT));
+                                scanline[i] = ab;
+                            }
+                            else
+                            {
+                                if (i >= 0) // add antialiasing for x0
+                                {
+                                    ab = (byte)(scanline[i] + (byte)(((FIX - (x0 & FIXMASK)) * max_weight) >> FIXSHIFT));
+                                    scanline[i] = ab;
+                                }
+                                else
+                                    i = -1; // clip
+
+                                if (j < len) // add antialiasing for x1
+                                {
+                                    ab = (byte)(scanline[j] + (byte)(((x1 & FIXMASK) * max_weight) >> FIXSHIFT));
+                                    scanline[j] = ab;
+                                }
+                                else
+                                    j = len; // clip
+
+                                for (++i; i < j; ++i) // fill pixels between x0 and x1
+                                {
+                                    ab = (byte)(scanline[i] + (byte)max_weight);
+                                    scanline[i] = ab;
+                                }
+                            }
+                        }
+                    }
+                }
+                edge = edge.Next;
+            }
+        }
     }
 }

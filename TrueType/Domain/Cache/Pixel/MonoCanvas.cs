@@ -1,4 +1,5 @@
-﻿using TrueType.Mode;
+﻿using System.Numerics;
+using TrueType.Mode;
 
 namespace TrueType.Domain.Cache.Pixel
 {
@@ -19,37 +20,26 @@ namespace TrueType.Domain.Cache.Pixel
 
         public Point Location { get; private set; }
 
-        internal void DrawScanline(Scanline scanline, int lineIndex, Size renderSize)
-        {
-            Array.Copy(scanline.Data!, 0, Pixels, Location.X + Location.Y * Size.Width + lineIndex * Size.Width, renderSize.Width);
-        }
-
-        public void TryLocate(Size renderSize, int lightHeight)
+        internal TTFBitmap LocateCharacter(char character, int size, byte[] data, Size renderSize, int lineHeight)
         {
             var location = Location;
             if (Location.X + renderSize.Width > Size.Width)
             {
                 location.X = 0;
-                location.Y += lightHeight;
+                location.Y += lineHeight;
             }
-            Location = location;
-        }
 
-        public void UpdateLocation(Size renderSize, int lightHeight)
-        {
-            var location = Location;
-            if (Location.X + renderSize.Width > Size.Width)
+            var steps = renderSize.Height;
+            for (int i = 0; i < steps; i++)
             {
-                location.X = 0;
-                location.Y += lightHeight;
+                Array.Copy(data, i * renderSize.Width, Pixels, location.X + location.Y * Size.Width + i * Size.Width, renderSize.Width);
             }
-            else
-            {
-                location.X += renderSize.Width;
-            }
+            var bitmap = new TTFBitmap(character, size, new Rect(location.X, location.Y, renderSize.Width, renderSize.Height));
+
+            location.X += renderSize.Width;
             Location = location;
+
+            return bitmap;
         }
-
-
     }
 }
