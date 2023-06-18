@@ -18,10 +18,10 @@ namespace App
 
         private readonly IVertex2[] _vertices = new IVertex2[]
         {
-            new ColorTextureVertex2(new Vector2(0, 512f), new Vector4(1, 1, 1, 1), new Vector2(0.0f, 0.0f)),
-            new ColorTextureVertex2(new Vector2(512f, 512f), new Vector4(1, 1, 1, 1), new Vector2(1f, 0.0f)),
-            new ColorTextureVertex2(new Vector2(512f, 1024f), new Vector4(1, 1, 1, 1), new Vector2(1f, 1f)),
-            new ColorTextureVertex2(new Vector2(0, 1024f), new Vector4(1, 1, 1, 1), new Vector2(0.0f, 1f)),
+            new ColorTextureVertex2(new Vector2(0, 512f), new Vector4(1, 0, 0, 1), new Vector2(0.0f, 0.0f)),
+            new ColorTextureVertex2(new Vector2(512f, 512f), new Vector4(1, 0, 0, 1), new Vector2(1f, 0.0f)),
+            new ColorTextureVertex2(new Vector2(512f, 1024f), new Vector4(1, 0, 0, 1), new Vector2(1f, 1f)),
+            new ColorTextureVertex2(new Vector2(0, 1024f), new Vector4(1, 0, 0, 1), new Vector2(0.0f, 1f)),
         };
 
         private readonly uint[] _indices =
@@ -55,7 +55,7 @@ namespace App
                 var x = 0;
                 var y = fontSize;
 
-                "早上好，林老师。Press_Enter_To_Contiune".Foreach(
+                "早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune".Foreach(
                     (c, p) =>
                     {
                         var glyph = ttf.GetGlyph(c, fontSize, 0, p);
@@ -70,7 +70,16 @@ namespace App
                         var texCoord = new RectangleF(texCoordX, texCoordY, texCoordWidth, texCoordHeight);
 
                         // Why can't use the offset x?
+                        
+
+                        if (x + glyph.Rect.Width > 1024)
+                        {
+                            x = 0;
+                            y += fontSize;
+                        }
+
                         _renderObjects.Add(new RectangleObject(new Rectangle(x, y, glyph.Rect.Width, glyph.Rect.Height), color, texCoord, new Point(0, /*glyph.Offset.X,*/ glyph.Offset.Y)));
+
                         x += glyph.Rect.Width;
                     }
                 );

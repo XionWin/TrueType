@@ -11,7 +11,7 @@ namespace TrueType.Extension
         const int FIX = (1 << FIXSHIFT);
         const int FIXMASK = (FIX - 1);
 
-        internal static TTFBitmap Rasterize(this TTFVector vector, int size, Size renderSize, PointF scale, PointF shift, Point off)
+        internal static TTFBitmap Rasterize(this TTFVector vector, TTFIndex index, Size renderSize, PointF scale, PointF shift, Point off)
         {
             var flatness_in_pixels = 0.35f;
             int vsubsample = renderSize.Height < 8 ? 15 : 5;
@@ -22,7 +22,7 @@ namespace TrueType.Extension
             var edges = windings!.stbtt__rasterize(vsubsample, scale, shift, off, true);
             var pixels = edges!.stbtt__rasterize_sorted_edges(renderSize, vsubsample, off);
 
-            var bitmap = MonoCanvas.Instance.LocateCharacter(vector.Character, size, pixels, renderSize, size);
+            var bitmap = MonoCanvas.Instance.ContainsKey(index) ? MonoCanvas.Instance[index] : MonoCanvas.Instance.LocateCharacter(index, pixels, renderSize, index.Size);
             return bitmap;
         }
         private static PointF[][]? FlattenCurves(this TTFVector vector, float objspace_flatness)

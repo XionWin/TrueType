@@ -3,7 +3,7 @@ using TrueType.Mode;
 
 namespace TrueType.Domain.Cache.Pixel
 {
-    public class MonoCanvas
+    public class MonoCanvas: Dictionary<TTFIndex, TTFBitmap>
     {
         public Size Size { get; init; }
 
@@ -20,7 +20,7 @@ namespace TrueType.Domain.Cache.Pixel
 
         public Point Location { get; private set; }
 
-        internal TTFBitmap LocateCharacter(char character, int size, byte[] data, Size renderSize, int lineHeight)
+        internal TTFBitmap LocateCharacter(TTFIndex index, byte[] data, Size renderSize, int lineHeight)
         {
             var location = Location;
             if (Location.X + renderSize.Width > Size.Width)
@@ -34,10 +34,12 @@ namespace TrueType.Domain.Cache.Pixel
             {
                 Array.Copy(data, i * renderSize.Width, Pixels, location.X + location.Y * Size.Width + i * Size.Width, renderSize.Width);
             }
-            var bitmap = new TTFBitmap(character, size, new Rect(location.X, location.Y, renderSize.Width, renderSize.Height));
+            var bitmap = new TTFBitmap(index.Character, index.Size, new Rect(location.X, location.Y, renderSize.Width, renderSize.Height));
 
             location.X += renderSize.Width;
             Location = location;
+
+            this.Add(index, bitmap);
 
             return bitmap;
         }
