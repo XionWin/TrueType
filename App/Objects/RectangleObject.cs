@@ -58,36 +58,5 @@ namespace App.Objects
             shader.EnableAttribs(ColorTextureVertex2.AttribLocations);
         }
 
-        // For Test
-        public override void OnRenderFrame(Shader shader)
-        {
-            // Bind the VAO
-            GL.BindVertexArray(this.VAO);
-            _raw[2] = this.Color.X;
-            _raw[3] = this.Color.Y;
-            _raw[4] = this.Color.Z;
-            _raw[5] = this.Color.W;
-
-            _raw[10] = this.Color.X;
-            _raw[11] = this.Color.Y;
-            _raw[12] = this.Color.Z;
-            _raw[13] = this.Color.W;
-
-            _raw[18] = this.Color.X;
-            _raw[19] = this.Color.Y;
-            _raw[20] = this.Color.Z;
-            _raw[21] = this.Color.W;
-
-            _raw[26] = this.Color.X;
-            _raw[27] = this.Color.Y;
-            _raw[28] = this.Color.Z;
-            _raw[29] = this.Color.W;
-
-            GL.BindBuffer(BufferTarget.ArrayBuffer, this.VBO);
-            GL.BufferData(BufferTarget.ArrayBuffer, _raw.Length * sizeof(float), _raw, BufferUsageHint.StaticDraw);
-
-            base.OnRenderFrame(shader);
-        }
-
     }
 }

@@ -52,20 +52,20 @@ namespace App
             {
                 var ttf = new TrueType.Domain.TTF(fontName, path);
 
-                var fontSize = 24;
+                var fontSize = 24 * 4;
                 var x = 0;
                 var y = fontSize;
 
                 var random = new Random();
 
-                "早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune早上好，林老师。Press_Enter_To_Contiune".Foreach(
+                "早上好".Foreach(
                     (c, p) =>
                     {
                         var glyph = ttf.GetGlyph(c, fontSize, 0, p);
                         var bitmap = glyph.Bitmap;
 
-                        //var color = new Vector4((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble(), 1);
-                        var color = new Vector4(1, 1, 1, 1);
+                        var color = new Vector4((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble(), 1);
+                        //var color = new Vector4(1, 1, 1, 1);
 
                         var texCoordX = (float)bitmap.TexRect.X / MonoCanvas.Instance.Size.Width;
                         var texCoordY = (float)bitmap.TexRect.Y / MonoCanvas.Instance.Size.Height;
@@ -82,7 +82,7 @@ namespace App
                             y += fontSize;
                         }
 
-                        _renderObjects.Add(new RectangleObject(new Rectangle(x, y, glyph.Rect.Width, glyph.Rect.Height), color, texCoord, new Point(0, /*glyph.Offset.X,*/ glyph.Offset.Y)));
+                        _renderObjects.Add(new Character(new Rectangle(x, y, glyph.Rect.Width, glyph.Rect.Height), color, texCoord, new Point(0, /*glyph.Offset.X,*/ glyph.Offset.Y)));
 
                         x += glyph.Rect.Width;
                     }
@@ -166,13 +166,8 @@ namespace App
             // Active texture
             this.Shader.Uniform1("aTexture", 0);
 
-            var random = new Random();
             foreach (var renderObject in _renderObjects)
             {
-                if (renderObject is RectangleObject character)
-                {
-                    character.Color = new Vector4((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble(), 1);
-                }
                 renderObject.OnRenderFrame(this.Shader);
             }
             GL.Disable(EnableCap.DepthTest);

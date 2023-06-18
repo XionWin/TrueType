@@ -23,10 +23,6 @@ namespace App.Objects
         public abstract uint[] Indices { get; }
         public abstract Point Center { get; }
 
-
-        // For Test
-        internal float[]? _raw;
-
         public virtual void OnLoad(Shader shader)
         {
             this.VAO = GL.GenVertexArray();
@@ -38,7 +34,6 @@ namespace App.Objects
             // bind vbo and set data for vbo
             GL.BindBuffer(BufferTarget.ArrayBuffer, this.VBO);
             var vertices = this.Vertices.GetRaw();
-            _raw = vertices;
             GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
 
             // bind ebo and set data for ebo
