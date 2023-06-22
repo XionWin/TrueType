@@ -1,15 +1,15 @@
 ﻿using System.Numerics;
 using TrueType.Mode;
 
-namespace TrueType.Domain.Cache.Pixel
+namespace TrueType.Domain
 {
-    public class MonoCanvas: Dictionary<TTFIndex, TTFBitmap>
+    public class MonoCanvas : Dictionary<TTFIndex, TTFBitmap>
     {
         public Size Size { get; init; }
 
         public byte[] Pixels { get; init; }
 
-        private static MonoCanvas _Instance = new MonoCanvas(new Size(512, 512));
+        private static MonoCanvas _Instance = new MonoCanvas(new Size(1024, 1024));
         public static MonoCanvas Instance = _Instance;
 
         private MonoCanvas(Size size)
@@ -39,7 +39,7 @@ namespace TrueType.Domain.Cache.Pixel
             location.X += renderSize.Width;
             Location = location;
 
-            this.Add(index, bitmap);
+            //this.Add(index, bitmap);
 
             return bitmap;
         }

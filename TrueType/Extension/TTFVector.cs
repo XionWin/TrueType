@@ -1,5 +1,4 @@
 ﻿using TrueType.Domain;
-using TrueType.Domain.Cache.Pixel;
 using TrueType.Mode;
 using TrueType.Support;
 
@@ -22,7 +21,7 @@ namespace TrueType.Extension
             var edges = windings!.stbtt__rasterize(vsubsample, scale, shift, off, true);
             var pixels = edges!.stbtt__rasterize_sorted_edges(renderSize, vsubsample, off);
 
-            var bitmap = MonoCanvas.Instance.ContainsKey(index) ? MonoCanvas.Instance[index] : MonoCanvas.Instance.LocateCharacter(index, pixels, renderSize, index.Size);
+            var bitmap = /*MonoCanvas.Instance.ContainsKey(index) ? MonoCanvas.Instance[index] :*/ MonoCanvas.Instance.LocateCharacter(index, pixels, renderSize, index.Size);
             return bitmap;
         }
         private static PointF[][]? FlattenCurves(this TTFVector vector, float objspace_flatness)

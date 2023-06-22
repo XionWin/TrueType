@@ -1,5 +1,4 @@
-﻿using TrueType.Domain.Cache.Pixel;
-using TrueType.Mode;
+﻿using TrueType.Mode;
 
 namespace TrueType.Domain
 {

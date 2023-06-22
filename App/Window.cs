@@ -8,7 +8,6 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Drawing;
 using TrueType.Domain;
-using TrueType.Domain.Cache.Pixel;
 
 namespace App
 {
@@ -58,7 +57,7 @@ namespace App
 
                 var random = new Random();
 
-                "早上好".Foreach(
+                "早上好，ABC。".Foreach(
                     (c, p) =>
                     {
                         var glyph = ttf.GetGlyph(c, fontSize, 0, p);

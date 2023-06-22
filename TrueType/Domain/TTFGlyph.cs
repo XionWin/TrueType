@@ -3,7 +3,7 @@
 namespace TrueType.Domain
 {
     public class TTFGlyph
-    { 
+    {
         public int Index { get; set; }
         public float Scale { get; set; }
         public PointF Shift { get; set; }

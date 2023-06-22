@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TrueType.Domain.Cache.Pixel
+namespace TrueType.Domain
 {
     internal class Scanline
     {

@@ -10,4 +10,8 @@
     <ProjectReference Include="..\Extension\Extension.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Domain\Cache\" />
+  </ItemGroup>
+
 </Project>

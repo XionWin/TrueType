@@ -1,5 +1,4 @@
-﻿using TrueType.Domain.Cache;
-using TrueType.Extension;
+﻿using TrueType.Extension;
 using TrueType.Mode;
 
 namespace TrueType.Domain

@@ -1,5 +1,4 @@
-﻿using TrueType.Domain.Cache.Vector;
-using TrueType.Extension;
+﻿using TrueType.Extension;
 using TrueType.Mode;
 
 namespace TrueType.Domain
@@ -9,23 +8,19 @@ namespace TrueType.Domain
         public string Name { get; set; }
         public string Path { get; set; }
 
-        private Cache.Vector.Cache _vectorCache = Cache.Vector.Cache.Instance;
+
         private TTFAtlas _atlas = TTFAtlas.Instance;
-        private TTFRaw _raw;
+        private TTFRaw Raw { get; init; }
 
         public TTF(string name, string path)
         {
             Name = name;
             Path = path;
 
-            if (_vectorCache.ContainsKey(name) is false)
-                _vectorCache.Add(name, new FontCache(new TTFRaw(name, File.ReadAllBytes(path))));
-
-
-            this._raw = _vectorCache[name].Raw is TTFRaw ttfRaw ? ttfRaw : throw new ArgumentException();
+            this.Raw = new TTFRaw(name, File.ReadAllBytes(path));
 
             var lineGap = 0;
-            var vMetrics = this._raw.GetFontVMetrics();
+            var vMetrics = this.Raw.GetFontVMetrics();
             var fontHeight = vMetrics.ascent - vMetrics.descent;
             var fontascender = (float)vMetrics.ascent / fontHeight;
             var fontdescender = (float)vMetrics.descent / fontHeight;
@@ -36,14 +31,14 @@ namespace TrueType.Domain
         public TTFGlyph GetGlyph(char character, int size, int blur, char? pervious)
         {
             var index = new TTFIndex(character, size, blur);
-            var vector = this._vectorCache[this.Name].TryGet(character);
+            var vector = this.Raw.GetVector(character);
 
-            return TTFAtlas.Instance.GetGlyph(index, this._raw, vector);
+            return TTFAtlas.Instance.GetGlyph(index, this.Raw, vector);
         }
 
         public void Dispose()
         {
-            this._vectorCache.Clear();
+
         }
     }
 }
