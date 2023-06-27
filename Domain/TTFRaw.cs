@@ -1,4 +1,5 @@
 ﻿using TrueType.Extension;
+using TrueType.Mode;
 
 namespace TrueType.Domain
 {

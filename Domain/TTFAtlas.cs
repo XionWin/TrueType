@@ -10,8 +10,13 @@ namespace TrueType.Domain
         private static TTFAtlas _Instance = new TTFAtlas();
         public static TTFAtlas Instance = _Instance;
 
-        public TTFGlyph GetGlyph(TTFIndex ttfIndex, TTFRaw raw, TTFVector vector)
+        public TTFGlyph GetGlyph(TTFIndex ttfIndex, TTFRaw raw)
         {
+            if (this.ContainsKey(ttfIndex))
+            {
+                return this[ttfIndex];
+            }
+
             var character = ttfIndex.Character;
             var size = ttfIndex.Size;
             var blur = ttfIndex.Blur;
@@ -43,6 +48,8 @@ namespace TrueType.Domain
             var xadv = (short)(scaleValue * advanceWidth * 10.0f);
             var off = new Point(x0, y0);
 
+            var vector = raw.GetVector(character);
+
             var bitmap = vector.Rasterize(ttfIndex, renderSize, scale, shift, off);
 
             var glyph = new TTFGlyph()
@@ -57,6 +64,8 @@ namespace TrueType.Domain
                 Offset = off,
                 Bitmap = bitmap,
             };
+
+            this.Add(ttfIndex, glyph);
             return glyph;
         }
         

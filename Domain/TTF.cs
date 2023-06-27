@@ -31,9 +31,8 @@ namespace TrueType.Domain
         public TTFGlyph GetGlyph(char character, int size, int blur, char? pervious)
         {
             var index = new TTFIndex(character, size, blur);
-            var vector = this.Raw.GetVector(character);
 
-            return TTFAtlas.Instance.GetGlyph(index, this.Raw, vector);
+            return TTFAtlas.Instance.GetGlyph(index, this.Raw);
         }
 
         public void Dispose()

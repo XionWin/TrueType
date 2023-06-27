@@ -1,4 +1,4 @@
-﻿namespace TrueType
+﻿namespace TrueType.Mode
 {
 
     public static class Consts
