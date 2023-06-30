@@ -34,10 +34,12 @@ namespace TrueType.Domain
             var scaleValue = raw.GetPixelHeightScale(size);
             var scale = new PointF(scaleValue, scaleValue);
 
-            var shift = new PointF();
-
             var index = raw.GetGlyphIndex((int)character);
-            var (advanceWidth, leftSideBearing, x0, y0, x1, y1) = raw.BuildGlyphBoxSettings(index, size, scale, shift);
+            var vector = raw.GetVector(character);
+
+
+            var (advanceWidth, leftSideBearing) = raw.GetGlyphHMetrics(index);
+            var (x0, y0, x1, y1) = vector.GetGlyphBox(size, scale);
 
             var renderSize = new Size(x1 - x0, y1 - y0);
             var glyphSize = new Size(renderSize.Width + pad * 2, renderSize.Height + pad * 2);
@@ -46,22 +48,23 @@ namespace TrueType.Domain
             //AtlasAddRect(Atlas.Instance, this._raw, glyphSize);
 
             var xadv = (short)(scaleValue * advanceWidth * 10.0f);
-            var off = new Point(x0, y0);
+            var offset = new Point(x0, y0);
 
-            var vector = raw.GetVector(character);
+            //vector.Vertices = vector.Vertices.Take(5).ToArray();
 
-            var bitmap = vector.Rasterize(ttfIndex, renderSize, scale, shift, off);
+
+
+            var bitmap = vector.Rasterize(ttfIndex, renderSize, scale, offset);
 
             var glyph = new TTFGlyph()
             {
                 Index = index,
                 Scale = scaleValue,
-                Shift = shift,
                 AdvanceWidth = advanceWidth,
                 LeftSideBearing = leftSideBearing,
                 XAdvanceWidth = xadv,
                 Rect = new Rect(x0, y0, x1 - x0, y1 - y0),
-                Offset = off,
+                Offset = offset,
                 Bitmap = bitmap,
             };
 

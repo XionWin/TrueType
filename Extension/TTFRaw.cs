@@ -180,13 +180,6 @@ namespace TrueType.Extension
             return MemoryMarshal.Read<T>(span);
         }
 
-        internal static (int advanceWidth, int leftSideBearing, int x0, int y0, int x1, int y1) BuildGlyphBoxSettings(this TTFRaw raw, int index, int size, PointF scale, PointF shift)
-        {
-            var (advanceWidth, leftSideBearing) = raw.GetGlyphHMetrics(index);
-            var (x0, y0, x1, y1) = raw.GetGlyphBox(index, scale, shift);
-            return (advanceWidth, leftSideBearing, x0, y0, x1, y1);
-        }
-
         internal static int GetGlyphKernAdvance(this TTFRaw raw, int glyph1, int glyph2)
         {
             int kern = raw.Table.Kern;
@@ -218,26 +211,22 @@ namespace TrueType.Extension
             return 0;
         }
 
-        private static (int x0, int y0, int x1, int y1) GetGlyphBox(this TTFRaw raw, int index, PointF scale, PointF shift)
+        internal static (int x0, int y0, int x1, int y1) GetGlyphBox(this TTFVector vector, int index, PointF scale)
         {
-            var offset = raw.GetGlyphOffset(index);
-            if (offset == 0)
-                throw new Exception("Not found");
-
-            var x0 = (int)raw.GetNumber<short>(offset + 2);
-            var y0 = (int)raw.GetNumber<short>(offset + 4);
-            var x1 = (int)raw.GetNumber<short>(offset + 6);
-            var y1 = (int)raw.GetNumber<short>(offset + 8);
+            var x0 = vector.Vertices?.Min(x => x.X) ?? 0;
+            var y0 = vector.Vertices?.Min(x => x.Y) ?? 0;
+            var x1 = vector.Vertices?.Max(x => x.X) ?? 0;
+            var y1 = vector.Vertices?.Max(x => x.Y) ?? 0;
 
 
-            var ix0 = (int)Math.Floor(x0 * scale.X + shift.X);
-            var iy0 = (int)-Math.Ceiling(y1 * scale.Y + shift.Y);
-            var ix1 = (int)Math.Ceiling(x1 * scale.X + shift.X);
-            var iy1 = (int)-Math.Floor(y0 * scale.Y + shift.Y);
+            var ix0 = (int)Math.Floor(x0 * scale.X);
+            var iy0 = (int)-Math.Ceiling(y1 * scale.Y);
+            var ix1 = (int)Math.Ceiling(x1 * scale.X);
+            var iy1 = (int)-Math.Floor(y0 * scale.Y);
             return (ix0, iy0, ix1, iy1);
         }
 
-        private static (short advanceWidth, short leftSideBearing) GetGlyphHMetrics(this TTFRaw raw, int index)
+        internal static (short advanceWidth, short leftSideBearing) GetGlyphHMetrics(this TTFRaw raw, int index)
         {
             var numOfLongHorMetrics = raw.GetNumber<ushort>(raw.Table.Hhea + 34);
             if (index < numOfLongHorMetrics)
@@ -256,26 +245,26 @@ namespace TrueType.Extension
 
         #region Vector related
         internal static TTFVector GetVector(this TTFRaw raw, char character) =>
-            raw.GetGlyphIndex(character) is var index ?
-            new TTFVector(character, raw.GetShape(index)) :
+            raw.GetGlyphIndex(character) is var glyphIndex ?
+            new TTFVector(character, raw.GetShape(glyphIndex)) :
             throw new ArgumentException();
 
-        private static Vertex[] GetShape(this TTFRaw raw, int index)
+        private static Vertex[] GetShape(this TTFRaw raw, int glyphIndex)
         {
-            var offset = raw.GetGlyphOffset(index);
-            short numberOfContours = raw.GetNumber<short>(offset);
+            var glyphIndexOffset = raw.GetGlyphOffset(glyphIndex);
+            short numberOfContours = raw.GetNumber<short>(glyphIndexOffset);
 
             return numberOfContours switch
             {
                 0 => throw new ArgumentException(),    // Do nothing.
-                > 0 => raw.GetSimpleShape(offset, numberOfContours, index),
-                < 0 => raw.GetCompositeShape(offset, numberOfContours, index),     // Composite Glyph == -1
+                > 0 => raw.GetSimpleShape(glyphIndexOffset, numberOfContours, glyphIndex),
+                < 0 => raw.GetCompositeShape(glyphIndexOffset, numberOfContours, glyphIndex),     // Composite Glyph == -1
             };
         }
 
-        private static Vertex[] GetSimpleShape(this TTFRaw raw, int offset, int numberOfContours, int index)
+        private static Vertex[] GetSimpleShape(this TTFRaw raw, int glyphIndexOffset, int numberOfContours, int glyphIndex)
         {
-            int iData = offset + 10;
+            int iData = glyphIndexOffset + 10;
 
             var ins = raw.GetNumber<short>(iData + numberOfContours * 2);
 
@@ -424,11 +413,11 @@ namespace TrueType.Extension
             return vertices.Take(num_vertices).ToArray();
         }
 
-        private static Vertex[] GetCompositeShape(this TTFRaw raw, int offset, int numberOfContours, int index)
+        private static Vertex[] GetCompositeShape(this TTFRaw raw, int glyphIndexOffset, int numberOfContours, int glyphIndex)
         {
             int more = 1;
             byte[] compositeData = raw.Data;
-            int iCompositeData = offset + 10;
+            int iCompositeData = glyphIndexOffset + 10;
             var num_vertices = 0;
             Vertex[]? vertices = null;
 

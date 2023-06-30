@@ -10,7 +10,7 @@ namespace TrueType.Extension
         const int FIX = (1 << FIXSHIFT);
         const int FIXMASK = (FIX - 1);
 
-        internal static TTFBitmap Rasterize(this TTFVector vector, TTFIndex index, Size renderSize, PointF scale, PointF shift, Point off)
+        internal static TTFBitmap Rasterize(this TTFVector vector, TTFIndex index, Size renderSize, PointF scale, Point offset)
         {
             var flatness_in_pixels = 0.35f;
             int vsubsample = renderSize.Height < 8 ? 15 : 5;
@@ -18,10 +18,10 @@ namespace TrueType.Extension
 
             var data = System.Text.Json.JsonSerializer.Serialize(windings);
 
-            var edges = windings!.stbtt__rasterize(vsubsample, scale, shift, off, true);
-            var pixels = edges!.stbtt__rasterize_sorted_edges(renderSize, vsubsample, off);
+            var edges = windings!.stbtt__rasterize(vsubsample, scale, true);
+            var pixels = edges!.stbtt__rasterize_sorted_edges(renderSize, vsubsample, offset);
 
-            var bitmap = /*MonoCanvas.Instance.ContainsKey(index) ? MonoCanvas.Instance[index] :*/ MonoCanvas.Instance.LocateCharacter(index, pixels, renderSize, index.Size);
+            var bitmap = MonoCanvas.Instance.LocateCharacter(index, pixels, renderSize, index.Size);
             return bitmap;
         }
         private static PointF[][]? FlattenCurves(this TTFVector vector, float objspace_flatness)
@@ -69,7 +69,7 @@ namespace TrueType.Extension
             }
             return pointsList.ToArray();
         }
-        private static TTFEdge[]? stbtt__rasterize(this PointF[][] windings, int vsubsample, PointF scale, PointF shift, Point off, bool isInvented)
+        private static TTFEdge[]? stbtt__rasterize(this PointF[][] windings, int vsubsample, PointF scale, bool isInvented)
         {
             float y_scale_inv = isInvented ? -scale.Y : scale.Y;
             // vsubsample should divide 255 evenly; otherwise we won't reach full opacity
@@ -114,10 +114,10 @@ namespace TrueType.Extension
                     }
 
                     var edge = new TTFEdge();
-                    edge.P0 = new PointF(p0.X * scale.X + shift.X,
-                                    p0.Y * y_scale_inv * vsubsample + shift.Y);
-                    edge.P1 = new PointF(p1.X * scale.X + shift.X,
-                                    p1.Y * y_scale_inv * vsubsample + shift.Y);
+                    edge.P0 = new PointF(p0.X * scale.X,
+                                    p0.Y * y_scale_inv * vsubsample);
+                    edge.P1 = new PointF(p1.X * scale.X,
+                                    p1.Y * y_scale_inv * vsubsample);
                     edge.IsInvented = inventedFlag;
                     edges.Add(edge);
                 }
@@ -127,7 +127,7 @@ namespace TrueType.Extension
             return edges.ToArray();
         }
 
-        static byte[] stbtt__rasterize_sorted_edges(this TTFEdge[] edges, Size renderSize, int vsubsample, Point off)
+        static byte[] stbtt__rasterize_sorted_edges(this TTFEdge[] edges, Size renderSize, int vsubsample, Point offset)
         {
             var result = new byte[renderSize.Width * renderSize.Height];
 
@@ -138,9 +138,9 @@ namespace TrueType.Extension
             var scanline = Scanline.Instance.Request(renderSize.Width);
 
 
-            var y = off.Y * vsubsample;
+            var y = offset.Y * vsubsample;
 
-            edges = edges.Append(new TTFEdge(new PointF(0, (off.Y + renderSize.Height) * (float)vsubsample + 1), new PointF(), false)).ToArray();
+            edges = edges.Append(new TTFEdge(new PointF(0, (offset.Y + renderSize.Height) * (float)vsubsample + 1), new PointF(), false)).ToArray();
 
             var lineIndex = 0;
             var eIndex = 0;
@@ -201,7 +201,7 @@ namespace TrueType.Extension
                     {
                         if (edges[eIndex].P1.Y > scan_y)
                         {
-                            TTFActiveEdge z = edges[eIndex].new_active(off.X, scan_y);
+                            TTFActiveEdge z = edges[eIndex].new_active(offset.X, scan_y);
                             // find insertion point
                             if (activeIsNext.Next == null)
                                 activeIsNext.Next = z;
