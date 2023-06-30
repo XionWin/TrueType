@@ -50,9 +50,6 @@ namespace TrueType.Domain
             var xadv = (short)(scaleValue * advanceWidth * 10.0f);
             var offset = new Point(x0, y0);
 
-            //vector.Vertices = vector.Vertices.Take(5).ToArray();
-
-
 
             var bitmap = vector.Rasterize(ttfIndex, renderSize, scale, offset);
 
