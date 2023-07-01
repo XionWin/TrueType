@@ -9,7 +9,7 @@ namespace TrueType.Domain
         public int AdvanceWidth { get; set; }
         public int LeftSideBearing { get; set; }
         public float XAdvanceWidth { get; set; }
-        public Rect Rect { get; set; }
+        public Size Size { get; set; }
         public Point Offset { get; set; }
         public required TTFBitmap Bitmap { get; set; }
     }

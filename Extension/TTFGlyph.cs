@@ -26,10 +26,10 @@ namespace TrueType.Extension
             // Inset the texture region by one pixel for corret interpolation.
             xoff = (short)(glyph.Offset.X + 1);
             yoff = (short)(glyph.Offset.Y + 1);
-            x0 = (float)glyph.Rect.X;
-            y0 = (float)glyph.Rect.Y;
-            x1 = (float)(glyph.Rect.X + glyph.Rect.Width);
-            y1 = (float)(glyph.Rect.Y + glyph.Rect.Height);
+            x0 = (float)glyph.Offset.X;
+            y0 = (float)glyph.Offset.Y;
+            x1 = (float)(glyph.Offset.X + glyph.Size.Width);
+            y1 = (float)(glyph.Offset.Y + glyph.Size.Height);
 
 
             float rx0, ry0, rx1, ry1;

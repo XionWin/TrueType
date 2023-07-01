@@ -60,7 +60,7 @@ namespace TrueType.Domain
                 AdvanceWidth = advanceWidth,
                 LeftSideBearing = leftSideBearing,
                 XAdvanceWidth = xadv,
-                Rect = new Rect(x0, y0, x1 - x0, y1 - y0),
+                Size = renderSize,
                 Offset = offset,
                 Bitmap = bitmap,
             };
